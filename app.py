@@ -39,7 +39,6 @@ class AidedFuncs():
         db.session.commit()
         userhash= request.cookies.get('logged_user')
         elem= LoggedUsers.query.filter_by(user_hash=userhash).first()
-        print(elem)
         user = {'id':elem.id, 'name':elem.name, 'email':elem.email, 'username':elem.username, 'avatar':elem.avatar, 'phone':elem.phone, 'user_hash':elem.user_hash}
         return user
     
@@ -102,7 +101,7 @@ def home():
                         db.session.add(data)
                         db.session.commit()
                         my_id = LoggedUsers.query.filter_by(username= username_sign).first().id
-                        data2= LibraryData(id=my_id)
+                        data2= LibraryData(id=my_id, author="", category="", language="", publisher="")
                         db.session.add(data2)
                         db.session.commit()
                         return render_template('success_signup.html')
