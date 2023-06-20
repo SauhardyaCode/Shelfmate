@@ -26,13 +26,10 @@ class LoggedUsers(db.Model):
     username= db.Column(db.String(50), nullable= False)
     avatar= db.Column(db.Integer)
     phone= db.Column(db.String(20))
-
-class LibraryData(db.Model):
-    id= db.Column(db.Integer, primary_key= True)
     author= db.Column(db.String(5000))
     category= db.Column(db.String(5000))
     language= db.Column(db.String(1000))
-    publisher= db.Column(db.String(5000))
+    publisher= db.Column(db.String(5000)) 
 
 class AidedFuncs():
     def get_user(self):
@@ -40,15 +37,11 @@ class AidedFuncs():
         userhash= request.cookies.get('logged_user')
         elem= LoggedUsers.query.filter_by(user_hash=userhash).first()
         user = {'id':elem.id, 'name':elem.name, 'email':elem.email, 'username':elem.username, 'avatar':elem.avatar, 'phone':elem.phone, 'user_hash':elem.user_hash}
-        return user
-    
-    def get_library_logs(self, id):
-        user= LibraryData.query.filter_by(id=id).first()
-        arr = {'author': user.author.split(';'), 'category': user.category.split(';'), 'language': user.language.split(';'), 'publisher': user.publisher.split(';')}
-        for i in arr.keys():
-            if "" in arr[i]:
-                arr[i].remove("")
-        return arr
+        library = {'author': elem.author.split(';'), 'category': elem.category.split(';'), 'language': elem.language.split(';'), 'publisher': elem.publisher.split(';')}
+        for i in library.keys():
+            if "" in library[i]:
+                library[i].remove("")
+        return [user, library]
 
 aids = AidedFuncs()
 
@@ -97,12 +90,8 @@ def home():
                         print("Username should contain letters, digits and underscores only")
                         break
                     elif i+1==len(username_sign):
-                        data= LoggedUsers(username= username_sign, email= email_sign, pswd_hash= hasher.get_hash(password_sign), user_hash= hasher.get_hash(username_sign), name= name_sign, avatar=0, phone="")
+                        data= LoggedUsers(username= username_sign, email= email_sign, pswd_hash= hasher.get_hash(password_sign), user_hash= hasher.get_hash(username_sign), name= name_sign, avatar=0, phone="", author="", category="", language="", publisher="")
                         db.session.add(data)
-                        db.session.commit()
-                        my_id = LoggedUsers.query.filter_by(username= username_sign).first().id
-                        data2= LibraryData(id=my_id, author="", category="", language="", publisher="")
-                        db.session.add(data2)
                         db.session.commit()
                         return render_template('success_signup.html')
 
@@ -164,7 +153,7 @@ def set_cookie(index, user_hash):
 
 @app.route('/account/settings', methods= ['GET', 'POST'])
 def settings():
-    user = aids.get_user()
+    user, library = aids.get_user()
     if user == None:
         return render_template('cookie_mismatch.html')
     
@@ -219,10 +208,9 @@ def add_resource(task):
     if logged!='1':
         return redirect('/')
     else:
-        user = aids.get_user()
+        user, library = aids.get_user()
         if user == None:
             return render_template('cookie_mismatch.html')
-        library = aids.get_library_logs(user['id'])
     
         
     if task == "add-resource":
@@ -241,7 +229,7 @@ def add_resource(task):
             all_publisher=request.form['hid-publisher-options']
             quantity=request.form['quantity']
 
-            data = LibraryData.query.filter_by(id=user['id']).first()
+            data = LoggedUsers.query.filter_by(id=user['id']).first()
             data.author= all_author
             data.category= all_category
             data.language= all_language
@@ -281,9 +269,9 @@ def sender():
     result = isbn_decoder()
     return result
 
-# @app.errorhandler(500)
-# def err500(e):
-#     return render_template('500.html', url=request.url)
+@app.errorhandler(500)
+def err500(e):
+    return render_template('500.html', url=request.url)
 
 @app.errorhandler(404)
 def err400(e):
