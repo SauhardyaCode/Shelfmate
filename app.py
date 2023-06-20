@@ -98,7 +98,7 @@ def home():
                         print("Username should contain letters, digits and underscores only")
                         break
                     elif i+1==len(username_sign):
-                        data= LoggedUsers(username= username_sign, email= email_sign, pswd_hash= hasher.get_hash(password_sign), user_hash= hasher.get_hash(username_sign), name= name_sign)
+                        data= LoggedUsers(username= username_sign, email= email_sign, pswd_hash= hasher.get_hash(password_sign), user_hash= hasher.get_hash(username_sign), name= name_sign, avatar=0, phone="")
                         db.session.add(data)
                         db.session.commit()
                         my_id = LoggedUsers.query.filter_by(username= username_sign).first().id
@@ -282,9 +282,9 @@ def sender():
     result = isbn_decoder()
     return result
 
-@app.errorhandler(500)
-def err500(e):
-    return render_template('500.html', url=request.url)
+# @app.errorhandler(500)
+# def err500(e):
+#     return render_template('500.html', url=request.url)
 
 @app.errorhandler(404)
 def err400(e):
