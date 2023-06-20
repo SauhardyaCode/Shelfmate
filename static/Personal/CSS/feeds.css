@@ -1,0 +1,17 @@
+.gradient {
+    background: rgb(0, 122, 255);
+    background: linear-gradient(90deg, rgba(0, 122, 255, 1) 0%, rgba(204, 212, 232, 1) 100%, rgba(127, 182, 241, 1) 100%, rgba(162, 162, 162, 1) 100%);
+}
+
+#brand {
+    color: aliceblue;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 24px;
+    margin-top: 5px;
+}
+
+@media (min-width: 991.98px) {
+    #follow-apps{
+        margin-top: -20%;
+    }
+}

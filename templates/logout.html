@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logout</title>
+</head>
+<body>
+    <script>
+        var agree = confirm("Are you sure you want to log out?")
+        if (agree){
+            const exp = new Date();
+            exp.setTime(exp.getTime()+(200*7*24*60*60*1000));
+            document.cookie = "logged_info=0; expires="+exp.toUTCString()+";path=/";
+            document.cookie = "logged_user=0; expires='Thu, 01 Jan 1970 00:00:00 UTC'; path=/";
+            document.cookie = "logged_id=0; expires='Thu, 01 Jan 1970 00:00:00 UTC'; path=/";
+            window.location.replace("/")
+        }
+        else{
+            window.location.replace("/dashboard")
+        }
+    </script>
+</body>
+</html>

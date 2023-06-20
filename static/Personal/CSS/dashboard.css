@@ -1,0 +1,124 @@
+body {
+    background-color: #fbfbfb;
+}
+
+@media (min-width: 991.98px) {
+    main {
+        padding-left: 240px;
+    }
+
+    #brand {
+        font-size: 24px;
+    }
+}
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    padding: 58px 0 0;
+    box-shadow: 0 2px 5px 0 rgb(0 0 0 / 5%), 0 2px 10px 0 rgb(0 0 0 / 5%);
+    width: 240px;
+    z-index: 600;
+    overflow-x: hidden;
+    white-space: nowrap;
+}
+
+@media (max-width: 991.98px) {
+    .sidebar {
+        width: 100%;
+        visibility: hidden;
+        overflow-x: scroll;
+    }
+
+    .navbar-brand {
+        display: none;
+    }
+
+    #account-name {
+        width: 9em;
+    }
+}
+
+.sidebar .active {
+    border-radius: 5px;
+    box-shadow: 0 2px 5px 0 rgb(0 0 0 / 16%), 0 2px 10px 0 rgb(0 0 0 / 12%);
+}
+
+.sidebar-sticky {
+    position: relative;
+    top: 0;
+    height: calc(100vh - 48px);
+    padding-top: 0.5rem;
+}
+
+#toggler {
+    padding: var(--bs-navbar-toggler-padding-y) var(--bs-navbar-toggler-padding-x);
+    font-size: var(--bs-navbar-toggler-font-size);
+    line-height: 1;
+    color: var(--bs-navbar-color);
+    background-color: transparent;
+    border: var(--bs-border-width) solid var(--bs-navbar-toggler-border-color);
+    border-radius: var(--bs-navbar-toggler-border-radius);
+}
+
+#toggler:hover {
+    text-decoration: none;
+    outline: 0;
+    box-shadow: 0 0 0 var(--bs-navbar-toggler-focus-width)
+}
+
+.gradient {
+    background: rgb(0, 122, 255);
+    background: linear-gradient(90deg, rgba(0, 122, 255, 1) 0%, rgba(204, 212, 232, 1) 100%, rgba(127, 182, 241, 1) 100%, rgba(162, 162, 162, 1) 100%);
+}
+
+#brand {
+    color: aliceblue;
+    font-family: Arial, Helvetica, sans-serif;
+
+    margin-top: 5px;
+}
+
+#account-name {
+    color: rgb(38, 13, 52);
+    font-size: 1.2em;
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+#account-select {
+    background-color: transparent;
+    border-color: transparent;
+    width: 2%;
+    margin-bottom: 1%;
+}
+
+.form-head {
+    font-weight: 500;
+}
+
+.form-add {
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid black;
+    font-size: 0.9em;
+    padding-top: 1%;
+    width: 15em;
+    /* margin-left: 10%; */
+}
+
+
+.form-add:focus {
+    outline: none;
+    border-bottom: 2px solid rgb(60, 99, 255);
+}
+
+.form-select-personal:focus {
+    outline: none;
+    border-bottom: 2px solid rgb(60, 99, 255);
+
+}

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="../static/Personal/Images/display/logo.png">
+    <link rel="stylesheet" href="../static/Personal/CSS/settings.css">
+    <link rel="stylesheet" href="../static/Bootstrap/style.css">
+    <title>Account Settings</title>
+    <link rel="stylesheet" href="../static/Personal/CSS/loading.css">
+</head>
+
+<body>
+    <div id="loading" class="show"></div>
+
+    <div class="wrapper bg-white mt-sm-5">
+        <h4 class="pb-4 border-bottom">Account settings</h4>
+        <form method="post">
+            <div class="d-flex align-items-start py-3 border-bottom">
+                <div class="pl-sm-4 pl-2 container" id="img-section"
+                    style="text-align: center; background-color:azure;">
+                    <b>Profile Photo</b><br>
+
+                    <img src="../static/Personal/Images/avatars/avatar_{{user['avatar']+21*((21-user['avatar'])//21)-((((21-user['avatar'])//21)+1)%2)}}.png"
+                        width="70" style="filter: blur(1px); cursor: pointer;" id="before"
+                        onclick="JavaScript:scroll_pic(-1)">
+                    {% for i in range(1,5) %}
+                    &nbsp;
+                    {% endfor %}
+                    <img src="../static/Personal/Images/avatars/avatar_{{user['avatar']}}.png" width="70" id="main">
+                    {% for i in range(1,5) %}
+                    &nbsp;
+                    {% endfor %}
+                    <img src="../static/Personal/Images/avatars/avatar_{{(user['avatar']+1)%(22)}}.png" width="70"
+                        style="filter: blur(1px); cursor: pointer;" id="after" onclick="JavaScript:scroll_pic(1)">
+                </div>
+            </div>
+            <div class="py-2">
+                <div class="row py-2">
+                    <div class="col-md-6">
+                        <label for="name">Your Name</label>
+                        <input type="text" class="bg-light form-control" value="{{user['name']}}" name="name" required>
+                    </div>
+                    <div class="col-md-6 pt-md-0 pt-3">
+                        <label for="username">Your Username</label>
+                        <input type="text" class="bg-light form-control" value="{{user['username']}}" name="username"
+                            required>
+                    </div>
+                </div>
+                <div class="row py-2">
+                    <div class="col-md-6">
+                        <label for="email">Email Address</label>
+                        <input type="text" class="bg-light form-control" value="{{user['email']}}" name="email"
+                            required>
+                    </div>
+                    <div class="col-md-6 pt-md-0 pt-3">
+                        <label for="phone">Phone Number (optional)</label>
+                        <input type="tel" class="bg-light form-control" value="{{user['phone']}}" name="phone"
+                            placeholder="+91 XXXX-XXXX-XX">
+                    </div>
+                </div><br><br>
+                <div class="py-3 pb-4 border-bottom">
+                    <input class="btn btn-primary mr-3" type="submit" value="Save Changes">
+                    <input class="btn btn-secondary mr-3" type="reset" value="Reset" onclick="JavaScript:reset_pic()">
+                    <a class="btn btn-dark mr-3" href="/dashboard">Cancel</a>
+                </div>
+            </div>
+            <div id="avatar-initial" style="display:none;">{{user['avatar']}}</div>
+            <input type="text" id="avatar-name" style="display:none;" value="{{user['avatar']}}" name="avatar">
+        </form>
+    </div>
+
+    <script>
+        const before = document.getElementById('before');
+        const main = document.getElementById('main');
+        const after = document.getElementById('after');
+        const data = document.getElementById('avatar-name')
+        const user_pic = document.getElementById('avatar-initial')
+        var pic = Number(user_pic.innerHTML);
+        function scroll_pic(click) {
+            if (click == -1) { if (!pic) { pic = 21; } else { pic--; } }
+            else { if (pic == 21) { pic = 0; } else { pic++; } }
+            before.src = "../static/Personal/Images/avatars/avatar_" + String(pic + 21 * Math.floor((21 - pic) / 21) - (((Math.floor((21 - pic) / 21)) + 1)) % 2) + ".png";
+            main.src = "../static/Personal/Images/avatars/avatar_" + String(pic) + ".png";
+            after.src = "../static/Personal/Images/avatars/avatar_" + String((pic + 1) % (22)) + ".png";
+            data.value = pic;
+        }
+        function reset_pic() {
+            user_pic_value = Number(user_pic.innerHTML);
+            pic = user_pic_value;
+            before.src = "../static/Personal/Images/avatars/avatar_" + String(user_pic_value + 21 * Math.floor((21 - user_pic_value) / 21) - (((Math.floor((21 - user_pic_value) / 21)) + 1)) % 2) + ".png";
+            main.src = "../static/Personal/Images/avatars/avatar_" + String(user_pic_value) + ".png";
+            after.src = "../static/Personal/Images/avatars/avatar_" + String((user_pic_value + 1) % (22)) + ".png";
+        }
+        document.cookie = "logged_info=1; path='/account'; expires='Thu, 01 Jan 1970 00:00:00 UTC'"
+    </script>
+    <script src="../static/Personal/JS/load.js"></script>
+</body>
+
+</html>

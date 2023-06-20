@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="../static/Personal/Images/display/logo.png">
+  <link rel="stylesheet" href="../static/Bootstrap/style.css">
+  <title>Shelfmate: @{{user['username']}}</title>
+  <link rel="stylesheet" href="../static/Personal/CSS/dashboard.css">
+  <link rel="stylesheet" href="../static/Personal/CSS/loading.css">
+  <style>
+    .image {
+      position: absolute;
+      right: 0;
+      margin-right: 5%;
+      padding-bottom: 5%;
+      font-size: 0.9em;
+    }
+
+    @media (min-width: 991.98px) {
+      input {
+        margin-left: 10%;
+      }
+
+      select {
+        margin-left: 10%;
+      }
+
+      .tags {
+        margin-left: 10%;
+      }
+    }
+
+    @media (max-width: 991.98px) {
+      .image {
+        display: none;
+      }
+    }
+  </style>
+</head>
+
+<body style="background-color:gainsboro;">
+  <script>
+    function toggle() {
+      const bar = document.getElementById('sidebarMenu');
+      const main = document.getElementsByTagName('main')[0];
+      const book = document.getElementsByClassName('image')[0];
+      if (bar.style.visibility == "visible") {
+        bar.style.visibility = "hidden";
+        main.className = "container-fluid"
+        book.style.right = "6%"
+      }
+      else {
+        bar.style.visibility = "visible";
+        main.className = ""
+        book.style.right = "0"
+      }
+    }
+
+    const messages = {
+      author: "Add the name of an author",
+      category: "Add a book category",
+      language: "Add a book language",
+      publisher: "Add a book publisher"
+    }
+
+    function add_options(type, added_stuff) {
+      const selector = document.getElementsByName(type)[0]
+      const hid_opt = document.getElementsByName("hid-" + type + "-options")[0]
+      let value = selector.value
+      var option = null
+      if (added_stuff == "" && value == "button-adder") {
+        option = prompt(messages[type]);
+      }
+      else if (added_stuff != "") {
+        option = added_stuff;
+      }
+      if (option != null && !hid_opt.value.split(';').includes(option.replace(/;/g, '')) && !option.replace(/ /g, '') == '') {
+        hid_opt.value += option.replace(/;/g, '') + ';';
+        let syntax = `<option value="" hidden>-select-</option>`
+        let arr = hid_opt.value.split(';')
+        for (let i = 0; i < arr.length - 1; i++) {
+          syntax += `<option value="` + arr[i] + `">` + arr[i].replace(/ /g, "&nbsp;") + `</option>`;
+        }
+        syntax += `<option value="button-adder">+ Add ` + type + `</option>`
+        selector.innerHTML = syntax;
+        selector.options.selectedIndex = selector.options.length - 2;
+      }
+      else if (selector.options.selectedIndex == selector.options.length - 1) {
+        selector.options.selectedIndex = 0
+
+      }
+    }
+
+    function add_choice(type, added_stuff = "") {
+      add_options(type, added_stuff)
+      const selector = document.getElementsByName(type)[0]
+      const tagger = document.getElementById(type + '-tag')
+      const hid_tagger = document.getElementsByName("hidden-" + type + "-tag")[0]
+      const total = document.getElementsByName(type)[0].options
+      if (added_stuff == "") {
+        var choice = total[total.selectedIndex].value
+      }
+      else {
+        var choice = added_stuff;
+      }
+      if (!hid_tagger.value.split(';').includes(choice)) {
+
+        hid_tagger.value += choice + ";";
+        tagger.innerHTML += `<div onclick="JavaScript:delete_choice(this,'` + type + `')" class="card bg-light mb-3" style="width:fit-content; font-size: 0.7em; font-weight: 500; white-space: nowrap;"><div class="card-header">` + choice.replace(/ /g, "&nbsp;") + `&nbsp;<span style="font-size: 1.4em; cursor: pointer; color: red;">&Cross;</span></div></div>`
+      }
+
+      selector.options.selectedIndex = 0
+    }
+
+    function delete_choice(elem, type) {
+      const hid_tagger = document.getElementsByName("hidden-" + type + "-tag")[0]
+      const text = elem.innerHTML.replace(/&nbsp;/g, " ")
+      elem.remove()
+      hid_tagger.value = hid_tagger.value.replace(text.slice(25, text.length - 76) + ';', "")
+    }
+
+    function cancel_page() {
+      if (confirm(`Are you sure you want to leave this page?`)) {
+        window.location.replace(`/dashboard`)
+      }
+    }
+
+    function check_image() {
+      const book = document.getElementById('book-cover')
+      const real_book = document.getElementById('book-cover-real')
+
+      if (book.width < 10) {
+        book.src = "../static/Personal/Images/display/book_cover.png"
+      }
+      real_book.src = book.src;
+      real_book.width = 240;
+      real_book.height = 340;
+      real_book.hidden = false
+    }
+
+    var initial_isbn = ""
+    function calculate_book() {
+      const title_info = document.getElementById('title-info')
+      const author_info = document.getElementById('author-info')
+      const year_info = document.getElementById('year-info')
+      const publisher_info = document.getElementById('publisher-info')
+      const cover = document.getElementById('book-cover')
+      const cover_real = document.getElementById('book-cover-real')
+      const form_title = document.getElementsByName('title')[0]
+      const hid_tag_author = document.getElementsByName("hidden-author-tag")[0]
+      const hid_tag_publisher = document.getElementsByName("hidden-publisher-tag")[0]
+      const taggers_author = document.getElementById("author-tag")
+      const taggers_publisher = document.getElementById("publisher-tag")
+
+      var isbn = document.getElementsByName('isbn')[0].value.trim();
+      if (isbn != initial_isbn) {
+        document.cookie = "isbn=" + isbn + ";path=/;"
+        taggers_author.innerHTML = ""
+        taggers_publisher.innerHTML = ""
+        fetch('/run-decoder')
+          .then(response => response.text())
+          .then(result => {
+            if (result != "") {
+              result = JSON.parse(result)
+
+              form_title.value = result[0]
+              form_title.disabled = true
+              hid_tag_author.value = ""
+              hid_tag_publisher.value = ""
+
+              let arr1 = result[1].split(', ')
+              for (let i = 0; i < arr1.length; i++) {
+                add_choice("author", arr1[i])
+              }
+              add_choice("publisher", result[3])
+
+              for (let i = 0; i < 3; i++) {
+                if (result[i].length > 32) {
+                  result[i] = result[i].slice(0, 29) + '...';
+                }
+              }
+              if (result[3].length > 25) {
+                result[3] = result[3].slice(0, 22) + '...';
+              }
+              for (let i = 0; i < result.length; i++) {
+                if (result[i] == "") {
+                  result[i] = "(no data)"
+                }
+              }
+
+              title_info.innerHTML = "<b>Title:&nbsp;</b>" + result[0];
+              author_info.innerHTML = "<b>Author:&nbsp;</b>" + result[1];
+              year_info.innerHTML = "<b>Year:&nbsp;</b>" + result[2];
+              publisher_info.innerHTML = "<b>Publisher:&nbsp;</b>" + result[3];
+              cover.src = "../static/Personal/Images/display/book_cover.png"
+              fetch("https://covers.openlibrary.org/b/isbn/" + result[4] + "-L.jpg")
+                .then(response => {
+                  setTimeout(() => {
+                    cover.src = response.url;
+                  }, 1000);
+                })
+            }
+            else {
+              form_title.disabled = false
+              form_title.value = ""
+              title_info.innerHTML = ""
+              author_info.innerHTML = ""
+              year_info.innerHTML = ""
+              publisher_info.innerHTML = ""
+              cover.src = ""
+              cover_real.src = "../static/Personal/Images/display/book_cover.png"
+              cover_real.hidden = true
+
+            }
+          });
+      }
+      initial_isbn = document.getElementsByName('isbn')[0].value.trim()
+    }
+
+  </script>
+  <div id="loading" class="show"></div>
+
+  <header>
+    <nav id="sidebarMenu" class="d-lg-block sidebar bg-white">
+      <div class="position-sticky dash-content" style="margin-left: -8%;"></div>
+    </nav>
+    <nav id="main-navbar" class="navbar navbar-expand-lg navbar-light fixed-top gradient">
+      <div class="container-fluid">
+        <button id="toggler" onclick="JavaScript:toggle()" type="button">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        {% for i in range(1,5) %}
+        &nbsp;
+        {% endfor %}
+        <a class="navbar-brand" href="/">
+          <img src="../static/Personal/Images/display/logo.png" height="40" />
+        </a>
+        <div class="navbar-brand" id="brand">Shelfmate</div>
+
+        <ul class=" ms-auto d-flex flex-row">
+          <span id="account-name" data-bs-toggle="modal" data-bs-target="#settingModal"
+            style="cursor: pointer;">{{user['name']}}&nbsp;&nbsp;
+            <img src="../static/Personal/Images/avatars/avatar_{{user['avatar']}}.png" class="rounded-circle"
+              height="35" alt="" loading="lazy" style="margin-bottom: 2%;" /></span>
+        </ul>
+
+      </div>
+    </nav>
+  </header>
+  <div class="modal fade" id="settingModal" tabindex="-1" aria-labelledby="settingModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header" style="background-color:darkgrey;">
+          <img src="../static/Personal/Images/avatars/avatar_{{user['avatar']}}.png" width="120px">
+          {% for i in range(1,5) %}
+          &nbsp;
+          {% endfor %}
+          <h1 class="modal-title fs-5" id="settingModalLabel">
+            {{user['name']}}
+          </h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <button type="button" class="btn btn-dark" data-bs-dismiss="modal"><a href="/account/settings"
+              style="text-decoration:none; color: white;">My Account</a></button>
+          <button type="button" class="btn btn-danger" data-bs-dismiss="modal"><a href="/account/logout"
+              style="text-decoration:none; color: white;">Log Out</a></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <main style="margin-top: 58px;"><br>
+    <div class="container pt-4" id="main-block" style="background-color:whitesmoke; padding: 5%; width: 95%;">
+      <p class="h4">Add Resource</p>
+      <hr>
+      <form class="container" method="post">
+        <div class="image">
+          <img id="book-cover" onload="JavaScript:check_image()" hidden>
+          <img id="book-cover-real"><br><br>
+          <div class="info">
+            <div id="title-info"></div><br>
+            <div id="author-info"></div><br>
+            <div id="year-info"></div><br>
+            <div id="publisher-info"></div><br>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-2 col-form-label form-head">ISBN<span style="color: red;">&nbsp;*</span></label>
+          <div class="col-sm-10">
+            <input type="text" placeholder="ISBN" class="form-add" name="isbn" onblur="JavaScript:calculate_book()"
+              required>
+          </div>
+        </div><br>
+        <div class="form-group row">
+          <label class="col-sm-2 col-form-label form-head">Title<span style="color: red;">&nbsp;*</span></label>
+          <div class="col-sm-10">
+            <input type="text" name="title-hidden" onsubmit="this.value=document.getElementsByName('title')[0].value"
+              hidden>
+            <input type="text" placeholder="Book Title" class="form-add" name="title" required>
+          </div>
+        </div><br>
+        <div class="form-group row">
+          <label class="col-sm-2 col-form-label form-head">Edition</label>
+          <div class="col-sm-10">
+            <input type="text" placeholder="Book Edition" class="form-add" name="edition">
+          </div>
+        </div><br>
+        <div class="form-group row">
+          <label class="col-sm-2 col-form-label form-head">Authors<span style="color: red;">&nbsp;*</span></label>
+          <div class="col-sm-10">
+            <input name="hidden-author-tag" hidden required>
+            <!-- 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 -->
+            <div class="col-sm-10 tags" id="author-tag">
+            </div>
+            <input name="hid-author-options" value="{%for x in library['author'] %}{{x}};{% endfor %}" hidden>
+            <select name="author" class="form-add form-select-sm mb-3 form-select-personal"
+              aria-label=".form-select-sm example" onchange="JavaScript:add_choice('author')">
+              <option value="" hidden>-select-</option>
+              {% for opt in library['author'] %}
+              {% if opt|length>0 %}
+              <option value="{{opt}}">{{opt}}</option>
+              {% endif %}
+              {% endfor %}
+              <option value="button-adder">+ Add author</option>
+            </select>
+          </div>
+        </div><br>
+        <div class="form-group row">
+          <label class="col-sm-2 col-form-label form-head">Category<span style="color: red;">&nbsp;*</span></label>
+          <div class="col-sm-10">
+            <input name="hidden-category-tag" hidden required>
+            <!-- 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 -->
+            <div class="col-sm-10 tags" id="category-tag">
+            </div>
+            <input name="hid-category-options" value="{%for x in library['category'] %}{{x}};{% endfor %}" hidden>
+            <select name="category" class="form-add form-select-sm mb-3 form-select-personal"
+              aria-label=".form-select-sm example" onchange="JavaScript:add_choice('category')">
+              <option value="" hidden>-select-</option>
+              {% for opt in library['category'] %}
+              {% if opt|length>0 %}
+              <option value="{{opt}}">{{opt}}</option>
+              {% endif %}
+              {% endfor %}
+              <option value="button-adder">+ Add category</option>
+            </select>
+          </div>
+        </div><br>
+        <div class="form-group row">
+          <label class="col-sm-2 col-form-label form-head">Publisher</label>
+          <div class="col-sm-10">
+            <input name="hidden-publisher-tag" hidden required>
+            <!-- 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 -->
+            <div class="col-sm-10 tags" id="publisher-tag">
+            </div>
+            <input name="hid-publisher-options" value="{%for x in library['publisher'] %}{{x}};{% endfor %}" hidden>
+            <select name="publisher" class="form-add form-select-sm mb-3 form-select-personal"
+              aria-label=".form-select-sm example" onchange="JavaScript:add_choice('publisher')">
+              <option value="" hidden>-select-</option>
+              {% for opt in library['publisher'] %}
+              {% if opt|length>0 %}
+              <option value="{{opt}}">{{opt}}</option>
+              {% endif %}
+              {% endfor %}
+              <option value="button-adder">+ Add publisher</option>
+            </select>
+          </div>
+        </div><br>
+        <div class="form-group row">
+          <label class="col-sm-2 col-form-label form-head">Language<span style="color: red;">&nbsp;*</span></label>
+          <div class="col-sm-10">
+            <input name="hidden-language-tag" hidden required>
+            <!-- 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 -->
+            <div class="col-sm-10 tags" id="language-tag">
+            </div>
+            <input name="hid-language-options" value="{%for x in library['language'] %}{{x}};{% endfor %}" hidden>
+            <select name="language" class="form-add form-select-sm mb-3 form-select-personal"
+              aria-label=".form-select-sm example" onchange="JavaScript:add_choice('language')">
+              <option value="" hidden>-select-</option>
+              {% for opt in library['language'] %}
+              {% if opt|length>0 %}
+              <option value="{{opt}}">{{opt}}</option>
+              {% endif %}
+              {% endfor %}
+              <option value="button-adder">+ Add language</option>
+            </select>
+          </div>
+        </div><br>
+        <div class="form-group row">
+          <label class="col-sm-2 col-form-label form-head">Quantity<span style="color: red;">&nbsp;*</span></label>
+          <div class="col-sm-10">
+            <input type="number" placeholder="Total Books" class="form-add" name="quantity" required>
+          </div>
+        </div><br><br><br>
+        <hr>
+
+        <div class="form-group row" style="text-align: center; margin-left: 5%;">
+          <div class="col-sm-10">
+            <input type="submit" class="btn btn-primary">&nbsp;&nbsp;&nbsp;
+            <button class="btn btn-secondary" onclick="JavaScript:cancel_page()">Cancel</button>
+          </div>
+      </form>
+    </div>
+  </main>
+
+
+  <script src="../static/Bootstrap/code.js"></script>
+  <script src="../static/Personal/JS/dash.js"></script>
+  <script src="../static/Personal/JS/load.js"></script>
+</body>
+
+</html>
+
+
+<!-- Data Arrangement -->
+<!-- currently tag invisibility problem -->

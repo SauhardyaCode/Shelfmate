@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="../static/Personal/Images/display/logo.png">
+  <link rel="stylesheet" href="../static/Bootstrap/style.css">
+  <link rel="stylesheet" href="../static/Personal/CSS/feeds.css">
+  <link rel="stylesheet" href="../static/Personal/CSS/home.css">
+  <title>Shelfmate: Your Library, Elevated</title>
+  <link rel="stylesheet" href="../static/Personal/CSS/loading.css">
+</head>
+
+<body>
+  <div id="loading" class="show"></div>
+
+
+  <div class="navbar-feeds"></div>
+
+  <div id="parallax"></div>
+  <div id="splash">
+    <div class="container">
+      <p><i>Your Library, Elevated... - Shelfmate</i></p>
+      <h3>OPEN A LIBRARY<br>START MANAGING WITH EASE</h3>
+    </div>
+    <div class="container d-grid gap-2 col-2 mx-auto" id="log-btn">
+      <button class="btn btn-dark" data-bs-toggle="offcanvas" data-bs-target="#staticBackdrop"
+        aria-controls="staticBackdrop">Login</button>
+    </div>
+  </div>
+
+  <div class="featured container-fluid">
+    <div class="images container">
+      {% for i in range(1, 10) %}
+      <img src="../static/Personal/Images/featured/lib{{i}}.jpg" width="50">
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="footer-feeds"></div>
+
+  <div id="message" hidden>{{message}}</div>
+  <div id="error" hidden>{{error}}</div>
+  <script>
+    var error = parseInt(document.getElementById('error').innerHTML);
+    var message = document.getElementById('message').innerHTML;
+    if (error) {
+      alert(message);
+    }
+  </script>
+
+  <script src="../static/Bootstrap/code.js"></script>
+  <script src="../static/Personal/JS/feeds.js"></script>
+  <script src="../static/Personal/JS/load.js"></script>
+
+</body>
+
+</html>

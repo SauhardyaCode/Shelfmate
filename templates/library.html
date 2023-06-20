@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="../static/Personal/Images/display/logo.png">
+  <link rel="stylesheet" href="../static/Bootstrap/style.css">
+  <title>Shelfmate: @{{user['username']}}</title>
+  <link rel="stylesheet" href="../static/Personal/CSS/dashboard.css">
+    <link rel="stylesheet" href="../static/Personal/CSS/loading.css">
+    <style>
+    .image {
+      position: absolute;
+      right: 0;
+      margin-right: 5%;
+      padding-bottom: 5%;
+      font-size: 0.9em;
+    }
+
+    @media (min-width: 991.98px) {
+      input {
+        margin-left: 10%;
+      }
+
+      select {
+        margin-left: 10%;
+      }
+
+      .tags {
+        margin-left: 10%;
+      }
+    }
+
+    @media (max-width: 991.98px) {
+      .image {
+        display: none;
+      }
+    }
+  </style>
+</head>
+
+<body style="background-color:gainsboro;">
+  <script>
+    function toggle() {
+      const bar = document.getElementById('sidebarMenu');
+      const main = document.getElementsByTagName('main')[0];
+      const book = document.getElementsByClassName('image')[0];
+      if (bar.style.visibility == "visible") {
+        bar.style.visibility = "hidden";
+        main.className = "container-fluid"
+        book.style.right = "6%"
+      }
+      else {
+        bar.style.visibility = "visible";
+        main.className = ""
+        book.style.right = "0"
+      }
+    }
+
+  </script>
+    <div id="loading" class="show"></div>
+
+  <header>
+    <nav id="sidebarMenu" class="d-lg-block sidebar bg-white">
+      <div class="position-sticky dash-content" style="margin-left: -8%;"></div>
+    </nav>
+    <nav id="main-navbar" class="navbar navbar-expand-lg navbar-light fixed-top gradient">
+      <div class="container-fluid">
+        <button id="toggler" onclick="JavaScript:toggle()" type="button">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        {% for i in range(1,5) %}
+        &nbsp;
+        {% endfor %}
+        <a class="navbar-brand" href="/">
+          <img src="../static/Personal/Images/display/logo.png" height="40" />
+        </a>
+        <div class="navbar-brand" id="brand">Shelfmate</div>
+
+        <ul class=" ms-auto d-flex flex-row">
+          <span id="account-name" data-bs-toggle="modal" data-bs-target="#settingModal"
+            style="cursor: pointer;">{{user['name']}}&nbsp;&nbsp;
+            <img src="../static/Personal/Images/avatars/avatar_{{user['avatar']}}.png" class="rounded-circle"
+              height="35" alt="" loading="lazy" style="margin-bottom: 2%;" /></span>
+        </ul>
+
+      </div>
+    </nav>
+  </header>
+  <div class="modal fade" id="settingModal" tabindex="-1" aria-labelledby="settingModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header" style="background-color:darkgrey;">
+          <img src="../static/Personal/Images/avatars/avatar_{{user['avatar']}}.png" width="120px">
+          {% for i in range(1,5) %}
+          &nbsp;
+          {% endfor %}
+          <h1 class="modal-title fs-5" id="settingModalLabel">
+            {{user['name']}}
+          </h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <button type="button" class="btn btn-dark" data-bs-dismiss="modal"><a href="/account/settings"
+              style="text-decoration:none; color: white;">My Account</a></button>
+          <button type="button" class="btn btn-danger" data-bs-dismiss="modal"><a href="/account/logout"
+              style="text-decoration:none; color: white;">Log Out</a></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <main style="margin-top: 58px;"><br>
+    <div class="container pt-4" id="main-block" style="background-color:whitesmoke; padding: 5%; width: 95%;">
+      <p class="h4">Library Details</p>
+      <hr>
+      <form class="container" method="post">
+        <div class="form-group row">
+            <label class="col-sm-2 col-form-label form-head">Library Name</label>
+            <div class="col-sm-10">
+              <input type="text" class="form-add" name="name-lib">
+            </div>
+          </div><br>
+        <div class="form-group row">
+            <label class="col-sm-2 col-form-label form-head">Email</label>
+            <div class="col-sm-10">
+              <input type="email" class="form-add" name="email-lib">
+            </div>
+          </div><br>
+        <div class="form-group row">
+            <label class="col-sm-2 col-form-label form-head">Phone number</label>
+            <div class="col-sm-10">
+              <input type="tel" class="form-add" name="phone">
+            </div>
+          </div><br>
+        <div class="form-group row">
+            <label class="col-sm-2 col-form-label form-head">Address</label>
+            <div class="col-sm-10">
+              <input type="text" class="form-add" name="address">
+            </div>
+          </div><br>
+      </form>
+    </div>
+  </main>
+
+
+  <script src="../static/Bootstrap/code.js"></script>
+  <script src="../static/Personal/JS/dash.js"></script>
+  <script src="../static/Personal/JS/load.js"></script>
+</body>
+
+</html>
+
+
+<!-- Data Arrangement -->
