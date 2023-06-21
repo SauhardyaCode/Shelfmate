@@ -41,7 +41,7 @@ navbar.innerHTML = `<div class="navbar-feeds">
     <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
   </div>
   <div class="offcanvas-body">
-    <form class="row g-3" method="post">
+    <form class="row g-3" method="post" autocomplete="off">
       <div class="col-12">
         <label for="email-signup" class="form-label">Email</label>
         <input type="email" class="form-control" name="email-signup" placeholder="Your Email" required>
@@ -80,7 +80,7 @@ navbar.innerHTML = `<div class="navbar-feeds">
     <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
   </div>
   <div class="offcanvas-body">
-    <form class="row g-3" method="post">
+    <form class="row g-3" method="post" autocomplete="off">
       <div class="col-12">
         <div class="col-12">
           <label for="username_email-login" class="form-label">Username</label>
