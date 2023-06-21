@@ -9,8 +9,8 @@
   <link rel="stylesheet" href="../static/Bootstrap/style.css">
   <title>Shelfmate: @{{user['username']}}</title>
   <link rel="stylesheet" href="../static/Personal/CSS/dashboard.css">
-    <link rel="stylesheet" href="../static/Personal/CSS/loading.css">
-    <style>
+  <link rel="stylesheet" href="../static/Personal/CSS/loading.css">
+  <style>
     .image {
       position: absolute;
       right: 0;
@@ -60,7 +60,7 @@
     }
 
   </script>
-    <div id="loading" class="show"></div>
+  <div id="loading" class="show"></div>
 
   <header>
     <nav id="sidebarMenu" class="d-lg-block sidebar bg-white">
@@ -79,11 +79,11 @@
         </a>
         <div class="navbar-brand" id="brand">Shelfmate</div>
 
-        <ul class=" ms-auto d-flex flex-row">
-          <span id="account-name" data-bs-toggle="modal" data-bs-target="#settingModal"
-            style="cursor: pointer;">{{user['name']}}&nbsp;&nbsp;
-            <img src="../static/Personal/Images/avatars/avatar_{{user['avatar']}}.png" class="rounded-circle"
-              height="35" alt="" loading="lazy" style="margin-bottom: 2%;" /></span>
+        <ul class=" ms-auto d-flex flex-row" data-bs-toggle="modal" data-bs-target="#settingModal"
+          style="cursor: pointer;">
+          <span id="account-name">{{user['name']}}
+          </span>&nbsp;&nbsp;<img src="../static/Personal/Images/avatars/avatar_{{user['avatar']}}.png"
+            class="rounded-circle" height="35" alt="" loading="lazy" style="margin-bottom: 2%;" />
         </ul>
 
       </div>
@@ -118,29 +118,29 @@
       <hr>
       <form class="container" method="post">
         <div class="form-group row">
-            <label class="col-sm-2 col-form-label form-head">Library Name</label>
-            <div class="col-sm-10">
-              <input type="text" class="form-add" name="name-lib">
-            </div>
-          </div><br>
+          <label class="col-sm-2 col-form-label form-head">Library Name</label>
+          <div class="col-sm-10">
+            <input type="text" class="form-add" name="name-lib">
+          </div>
+        </div><br>
         <div class="form-group row">
-            <label class="col-sm-2 col-form-label form-head">Email</label>
-            <div class="col-sm-10">
-              <input type="email" class="form-add" name="email-lib">
-            </div>
-          </div><br>
+          <label class="col-sm-2 col-form-label form-head">Email</label>
+          <div class="col-sm-10">
+            <input type="email" class="form-add" name="email-lib">
+          </div>
+        </div><br>
         <div class="form-group row">
-            <label class="col-sm-2 col-form-label form-head">Phone number</label>
-            <div class="col-sm-10">
-              <input type="tel" class="form-add" name="phone">
-            </div>
-          </div><br>
+          <label class="col-sm-2 col-form-label form-head">Phone number</label>
+          <div class="col-sm-10">
+            <input type="tel" class="form-add" name="phone">
+          </div>
+        </div><br>
         <div class="form-group row">
-            <label class="col-sm-2 col-form-label form-head">Address</label>
-            <div class="col-sm-10">
-              <input type="text" class="form-add" name="address">
-            </div>
-          </div><br>
+          <label class="col-sm-2 col-form-label form-head">Address</label>
+          <div class="col-sm-10">
+            <input type="text" class="form-add" name="address">
+          </div>
+        </div><br>
       </form>
     </div>
   </main>

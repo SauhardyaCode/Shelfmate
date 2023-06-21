@@ -38,6 +38,7 @@ body {
 
     #account-name {
         width: 9em;
+        text-align: right;
     }
 }
 

@@ -7,7 +7,14 @@
 <body>
     <h1>Oops..</h1>
     <p>It seems that the connection to the database or server is lost for some reasons.</p>
-    <p>Please come back later, or try reloading the page a few times.</p>
+    <p>Please come back later, or try reloading the page a few times. You may also consider <a href="/" onclick="Javascript:clear_cookies()">clearing all cookies</a>.</p>
     <a href="{{url}}">Reload</a>
+    <script>
+        function clear_cookies(){
+            document.cookie = "logged_info=0; path='/'"
+            document.cookie = "logged_user=''; path='/'; expires='Thu, 01 Jan 1970 00:00:00 UTC'"
+            document.cookie = "logged_id=''; path='/'; expires='Thu, 01 Jan 1970 00:00:00 UTC'"
+        }
+    </script>
 </body>
 </html>

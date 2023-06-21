@@ -240,11 +240,11 @@
         </a>
         <div class="navbar-brand" id="brand">Shelfmate</div>
 
-        <ul class=" ms-auto d-flex flex-row">
-          <span id="account-name" data-bs-toggle="modal" data-bs-target="#settingModal"
-            style="cursor: pointer;">{{user['name']}}&nbsp;&nbsp;
-            <img src="../static/Personal/Images/avatars/avatar_{{user['avatar']}}.png" class="rounded-circle"
-              height="35" alt="" loading="lazy" style="margin-bottom: 2%;" /></span>
+        <ul class=" ms-auto d-flex flex-row" data-bs-toggle="modal" data-bs-target="#settingModal"
+          style="cursor: pointer;">
+          <span id="account-name">{{user['name']}}
+          </span>&nbsp;&nbsp;<img src="../static/Personal/Images/avatars/avatar_{{user['avatar']}}.png"
+            class="rounded-circle" height="35" alt="" loading="lazy" style="margin-bottom: 2%;" />
         </ul>
 
       </div>
