@@ -254,6 +254,7 @@ def add_resource(task):
             data.publisher = all_publisher
             db.session.add(data)
             db.session.commit()
+            return redirect('/')
 
     elif task == "minor-settings":
 
@@ -262,7 +263,6 @@ def add_resource(task):
             publisher = request.form['hid-publisher']
             category = request.form['hid-category']
             language = request.form['hid-language']
-
             table = LoggedUsers.query.filter_by(id=user['id']).first()
             table.author = author
             table.publisher = publisher

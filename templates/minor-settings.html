@@ -219,7 +219,7 @@
             const elem = document.getElementsByName('hid-' + type)[0];
             const list = document.getElementById(type + "-list");
             const data = document.getElementById('data').value.replace(/;/g, '').trim();
-            if (data != "") {
+            if (data != "" && !elem.value.includes(data+';')) {
                 elem.value += data + ';';
                 list.innerHTML = ""
 
@@ -262,7 +262,6 @@
             for (let i = 0; i < init_length; i++) {
                 try {
                     const element = check_list[i];
-                    console.log(i)
                     if (element.checked) {
                         hid_inp.value = hid_inp.value.replace(element.value + ';', "");
                         document.getElementById(element.value + '-block').remove();
