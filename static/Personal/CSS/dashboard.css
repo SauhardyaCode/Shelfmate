@@ -10,6 +10,10 @@ body {
     #brand {
         font-size: 24px;
     }
+
+    .right-dash {
+        margin-left: 1em;
+    }
 }
 
 .sidebar {
@@ -39,6 +43,10 @@ body {
     #account-name {
         width: 9em;
         text-align: right;
+    }
+
+    .right-dash {
+        margin-left: 0.5em;
     }
 }
 
@@ -109,17 +117,21 @@ body {
     font-size: 0.9em;
     padding-top: 1%;
     width: 15em;
-    /* margin-left: 10%; */
 }
-
 
 .form-add:focus {
     outline: none;
     border-bottom: 2px solid rgb(60, 99, 255);
 }
 
-.form-select-personal:focus {
-    outline: none;
-    border-bottom: 2px solid rgb(60, 99, 255);
+.long-dash {
+    width: 50%;
+}
 
+.short-dash {
+    width: 24%;
+}
+
+.code-phone{
+    width: 8em;
 }

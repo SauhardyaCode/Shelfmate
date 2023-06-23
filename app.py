@@ -31,6 +31,11 @@ class LoggedUsers(db.Model):
     category = db.Column(db.String(5000))
     language = db.Column(db.String(1000))
     publisher = db.Column(db.String(5000))
+    library_name = db.Column(db.String(50))
+    library_email = db.Column(db.String(50))
+    library_phone = db.Column(db.String(20))
+    library_address = db.Column(db.String(150))
+    library_url = db.Column(db.String(30))
 
 
 class AidedFuncs():
@@ -45,7 +50,10 @@ class AidedFuncs():
         for i in library.keys():
             if "" in library[i]:
                 library[i].remove("")
-        return [user, library]
+        library_offline = {'library_name': elem.library_name, 'library_email': elem.library_email,
+                           'library_phone': elem.library_phone, 'library_address': elem.library_address.split(';'), 'library_url': elem.library_url}
+
+        return [user, library, library_offline]
 
 
 aids = AidedFuncs()
@@ -168,7 +176,7 @@ def set_cookie(index, user_hash):
 
 @app.route('/account/settings', methods=['GET', 'POST'])
 def settings():
-    user, library = aids.get_user()
+    user, library, library_offline = aids.get_user()
     if user == None:
         return render_template('cookie_mismatch.html')
 
@@ -210,7 +218,7 @@ def settings():
                     db.session.commit()
                     resp.set_cookie('logged_user', data.user_hash, expires=datetime.utcnow(
                     )+timedelta(weeks=200), path="/")
-                    # user hashes for other tables also need to be added here..
+                    # user hashes for other datas also need to be added here..
                     return resp
 
     return render_template('settings.html', user=user)
@@ -227,7 +235,7 @@ def add_resource(task):
     if logged != '1':
         return redirect('/')
     else:
-        user, library = aids.get_user()
+        user, library, library_offline = aids.get_user()
         if user == None:
             return render_template('cookie_mismatch.html')
 
@@ -263,16 +271,41 @@ def add_resource(task):
             publisher = request.form['hid-publisher']
             category = request.form['hid-category']
             language = request.form['hid-language']
-            table = LoggedUsers.query.filter_by(id=user['id']).first()
-            table.author = author
-            table.publisher = publisher
-            table.category = category
-            table.language = language
-            db.session.add(table)
+
+            data = LoggedUsers.query.filter_by(id=user['id']).first()
+            data.author = author
+            data.publisher = publisher
+            data.category = category
+            data.language = language
+            db.session.add(data)
             db.session.commit()
             return redirect('/')
 
-    return render_template(task+'.html', user=user, library=library)
+    elif task == "library":
+
+        if request.method == 'POST':
+            name = request.form['name-lib'].replace(';','')
+            email = request.form['email-lib'].replace(';','')
+            phone = request.form['phone-lib'].replace(';','')
+            address_1 = request.form['address-1'].replace(';','')
+            address_2 = request.form['address-2'].replace(';','')
+            address_city = request.form['address-city'].replace(';','')
+            address_state = request.form['address-state'].replace(';','')
+            address_postal = str(request.form['address-postal']).replace(';','')
+            address_country = request.form['address-country'].replace(';','')
+            web = request.form['web-lib'].replace(';','')
+
+            data = LoggedUsers.query.filter_by(id=user['id']).first()
+            data.library_name = name
+            data.library_email = email
+            data.library_phone = phone
+            data.library_address = ';'.join([address_1,address_2,address_city,address_state,address_postal,address_country])
+            data.library_url = web
+            db.session.add(data)
+            db.session.commit()
+            return redirect('/')
+
+    return render_template(task+'.html', user=user, library=library, library_offline=library_offline)
 
 
 def isbn_decoder():
