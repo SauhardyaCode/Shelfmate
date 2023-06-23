@@ -142,11 +142,12 @@
             </tbody>
           </table><br>
           <div id="edit-btn" style="text-align: center;">
-            <button class="btn btn-primary" onclick="JavaScript:toggle_show()">Edit</button>
+            <button class="btn btn-primary" onclick="JavaScript:toggle_show()">Edit</button>&nbsp;&nbsp;
+            <button class="btn btn-danger" onclick="JavaScript:delete_lib()">Delete</button>
           </div>
         </div>
       </div>
-      <form class="container" id="show-2" method="post">
+      <form class="container" id="show-2" method="post" autocomplete="off">
         <div class="form-group row">
           <label class="col-sm-2 col-form-label form-head">Library Name<span style="color: red;">&nbsp;*</span></label>
           <div class="col-sm-10">
@@ -440,8 +441,9 @@
           </div>
         </div><br><br>
         <div class="container-fluid" style="text-align: center;">
-          <button type="submit" class="btn btn-dark">Save Changes</button>&nbsp;&nbsp;
-          <button type="reset" onclick="JavaScript:toggle_show()" class="btn btn-secondary" id="cancel-btn">Cancel</button>
+          <button type="submit" class="btn btn-dark" id="save-btn">Save Changes</button>&nbsp;&nbsp;
+          <button type="reset" onclick="JavaScript:toggle_show()" class="btn btn-secondary"
+            id="cancel-btn">Cancel</button>
         </div>
     </div><br>
     </form>
@@ -481,6 +483,17 @@
         show_1.hidden = true;
       }
     }
+
+    function delete_lib() {
+      const inputs = document.getElementsByClassName('form-add')
+      for (i in inputs) {
+        inputs[i].required = false
+        inputs[i].value = ""
+        console.log(inputs[i])
+      }
+      document.getElementById('save-btn').click()
+    }
+
   </script>
 
   <script src="../static/Bootstrap/code.js"></script>
