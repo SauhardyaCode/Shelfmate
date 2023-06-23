@@ -440,7 +440,8 @@
           </div>
         </div><br><br>
         <div class="container-fluid" style="text-align: center;">
-          <button type="submit" value="Save Changes" class="btn btn-dark">Save Changes</button>
+          <button type="submit" class="btn btn-dark">Save Changes</button>&nbsp;&nbsp;
+          <button type="reset" onclick="JavaScript:toggle_show()" class="btn btn-secondary" id="cancel-btn">Cancel</button>
         </div>
     </div><br>
     </form>
@@ -452,6 +453,7 @@
     const defined = document.querySelector('.hidden').innerHTML;
     const show_1 = document.querySelector('#show-1');
     const show_2 = document.querySelector('#show-2');
+    const canceler = document.getElementById('cancel-btn')
     for (let i = 0; i < country.options.length; i++) {
       const element = country.options[i];
       if (element.value == defined) {
@@ -461,10 +463,12 @@
     if (defined != "") {
       show_1.hidden = false;
       show_2.hidden = true;
+      canceler.hidden = false
     }
     else {
       show_2.hidden = false;
       show_1.hidden = true;
+      canceler.hidden = true
     }
 
     function toggle_show() {
