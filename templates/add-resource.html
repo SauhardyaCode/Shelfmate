@@ -134,6 +134,7 @@
 
       if (book.width < 10) {
         book.src = "../static/Personal/Images/display/book_cover.png"
+        document.getElementById('book-cover-url').value = "../static/Personal/Images/display/book_cover.png"
       }
       real_book.src = book.src;
       real_book.width = 240;
@@ -167,6 +168,7 @@
               result = JSON.parse(result)
 
               form_title.value = result[0]
+              document.cookie = `title=` + result[0] + `;path=/;`
               form_title.disabled = true
               hid_tag_author.value = ""
               hid_tag_publisher.value = ""
@@ -200,6 +202,7 @@
                 .then(response => {
                   setTimeout(() => {
                     cover.src = response.url;
+                    document.getElementById('book-cover-url').value = response.url;
                   }, 1000);
                 })
             }
@@ -281,6 +284,7 @@
         <div class="image">
           <img id="book-cover" onload="JavaScript:check_image()" hidden>
           <img id="book-cover-real"><br><br>
+          <input type="text" id="book-cover-url" name="book-cover-url" hidden>
           <div class="info">
             <div id="title-info"></div><br>
             <div id="author-info"></div><br>
@@ -298,9 +302,9 @@
         <div class="form-group row">
           <label class="col-sm-2 col-form-label form-head">Title<span style="color: red;">&nbsp;*</span></label>
           <div class="col-sm-10">
-            <input type="text" name="title-hidden" onsubmit="this.value=document.getElementsByName('title')[0].value"
-              hidden>
-            <input type="text" placeholder="Book Title" class="form-add" name="title" required>
+            <input type="text" name="title-hidden" hidden>
+            <input type="text" placeholder="Book Title" class="form-add" name="title"
+              onchange="document.cookie=`title=`+this.value+`;path='/'`" required>
           </div>
         </div><br>
         <div class="form-group row">
@@ -317,8 +321,8 @@
             <div class="col-sm-10 tags" id="author-tag">
             </div>
             <input name="hid-author-options" value="{%for x in library['author'] %}{{x}};{% endfor %}" hidden>
-            <select name="author" class="form-add form-select-sm mb-3 form-add"
-              aria-label=".form-select-sm example" onchange="JavaScript:add_choice('author')">
+            <select name="author" class="form-add form-select-sm mb-3 form-add" aria-label=".form-select-sm example"
+              onchange="JavaScript:add_choice('author')">
               <option value="" hidden>-select-</option>
               {% for opt in library['author'] %}
               {% if opt|length>0 %}
@@ -337,8 +341,8 @@
             <div class="col-sm-10 tags" id="category-tag">
             </div>
             <input name="hid-category-options" value="{%for x in library['category'] %}{{x}};{% endfor %}" hidden>
-            <select name="category" class="form-add form-select-sm mb-3 form-add"
-              aria-label=".form-select-sm example" onchange="JavaScript:add_choice('category')">
+            <select name="category" class="form-add form-select-sm mb-3 form-add" aria-label=".form-select-sm example"
+              onchange="JavaScript:add_choice('category')">
               <option value="" hidden>-select-</option>
               {% for opt in library['category'] %}
               {% if opt|length>0 %}
@@ -357,8 +361,8 @@
             <div class="col-sm-10 tags" id="publisher-tag">
             </div>
             <input name="hid-publisher-options" value="{%for x in library['publisher'] %}{{x}};{% endfor %}" hidden>
-            <select name="publisher" class="form-add form-select-sm mb-3 form-add"
-              aria-label=".form-select-sm example" onchange="JavaScript:add_choice('publisher')">
+            <select name="publisher" class="form-add form-select-sm mb-3 form-add" aria-label=".form-select-sm example"
+              onchange="JavaScript:add_choice('publisher')">
               <option value="" hidden>-select-</option>
               {% for opt in library['publisher'] %}
               {% if opt|length>0 %}
@@ -377,8 +381,8 @@
             <div class="col-sm-10 tags" id="language-tag">
             </div>
             <input name="hid-language-options" value="{%for x in library['language'] %}{{x}};{% endfor %}" hidden>
-            <select name="language" class="form-add form-select-sm mb-3 form-add"
-              aria-label=".form-select-sm example" onchange="JavaScript:add_choice('language')">
+            <select name="language" class="form-add form-select-sm mb-3 form-add" aria-label=".form-select-sm example"
+              onchange="JavaScript:add_choice('language')">
               <option value="" hidden>-select-</option>
               {% for opt in library['language'] %}
               {% if opt|length>0 %}

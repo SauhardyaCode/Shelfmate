@@ -10,6 +10,48 @@
     <title>Shelfmate: @{{user['username']}}</title>
     <link rel="stylesheet" href="../static/Personal/CSS/dashboard.css">
     <link rel="stylesheet" href="../static/Personal/CSS/loading.css">
+    <style>
+        .list-tag {
+            font-size: 0.8em;
+            font-weight: 500;
+        }
+
+        .card-personal {
+            background-color: rgb(234, 234, 234);
+            padding: 5%;
+        }
+
+        .main-grouper {
+            padding: 5%;
+            width: 20em;
+        }
+
+        /* .form-add {
+            src: format();
+        } */
+
+        @media (min-width: 991.98px) {
+            .card-personal {
+                width: 40em;
+            }
+        }
+
+        @media (max-width: 991.98px) {
+            .card-personal {
+                width: 20em;
+                text-align: center;
+            }
+
+            .main-grouper {
+                width: 18em;
+                text-align: left;
+            }
+
+            .book-image {
+                display: none;
+            }
+        }
+    </style>
 </head>
 
 <body>
@@ -67,8 +109,93 @@
 
     <main style="margin-top: 58px">
         <div class="container-fluid pt-4" id="main-block">
-            hello
-
+            <div class="container pt-4" id="main-block"
+                style="background-color:whitesmoke; padding: 5%; width: 95%; text-align: right;">
+                <p class="h4" style="text-align: left;">Your Resources</p>
+                <form method="post" autocomplete="off">
+                    <button type="submit" disabled hidden></button>
+                    <button class="btn btn-secondary" type="submit">Save Changes</button>
+                    <hr>
+                    <table style="text-align: left;">
+                        <tbody>
+                            {% for i in range(resources|length) %}
+                            <tr>
+                                <td id="{{i}}-card">
+                                    <div class="card card-personal">
+                                        <div class="card-body">
+                                            <h5 class="card-title {{i}}-title-name">{{resources[i]['title']}}</h5>
+                                        </div>
+                                        <table>
+                                            <tr>
+                                                <td>
+                                                    <ul class="list-group list-group-flush main-grouper">
+                                                        <li class="list-group-item"><span class="list-tag">ISBN</span> -
+                                                            {{resources[i]['isbn']}}</li>
+                                                        <li class="list-group-item"><span
+                                                                class="list-tag">Authors</span> -
+                                                            <span
+                                                                class="{{i}}-data">{{resources[i]['author'].replace(';',', ')[:-2]}}</span>
+                                                            <input class="form-add" type="text" name="{{i}}-author" value="{{resources[i]['author'].replace(';',', ')[:-2]}}"
+                                                                hidden>
+                                                        </li>
+                                                        <li class="list-group-item"><span
+                                                                class="list-tag">Publisher</span> -
+                                                            <span
+                                                                class="{{i}}-data">{{resources[i]['publisher'].replace(';',', ')[:-2]}}</span>
+                                                            <input class="form-add" type="text" name="{{i}}-publisher" value="{{resources[i]['publisher'].replace(';',', ')[:-2]}}"
+                                                                hidden>
+                                                        </li>
+                                                        <li class="list-group-item"><span
+                                                                class="list-tag">Category</span> -
+                                                            <span
+                                                                class="{{i}}-data">{{resources[i]['category'].replace(';',', ')[:-2]}}</span>
+                                                            <input class="form-add" type="text" name="{{i}}-category" value="{{resources[i]['category'].replace(';',', ')[:-2]}}"
+                                                                hidden>
+                                                        </li>
+                                                        <li class="list-group-item"><span
+                                                                class="list-tag">Language</span> -
+                                                            <span
+                                                                class="{{i}}-data">{{resources[i]['language'].replace(';',', ')[:-2]}}</span>
+                                                            <input class="form-add" type="text" name="{{i}}-language" value="{{resources[i]['language'].replace(';',', ')[:-2]}}"
+                                                                hidden>
+                                                        </li>
+                                                        <li class="list-group-item"><span
+                                                                class="list-tag">Edition</span> -
+                                                            <span class="{{i}}-data">{{resources[i]['edition']}}</span>
+                                                            <input class="form-add" type="text" name="{{i}}-edition" value="{{resources[i]['edition']}}"
+                                                                hidden>
+                                                        </li>
+                                                        <li class="list-group-item"><span
+                                                                class="list-tag">Quantity</span> -
+                                                            <span class="{{i}}-data">{{resources[i]['quantity']}}</span>
+                                                            <input class="form-add" type="text" name="{{i}}-quantity" value="{{resources[i]['quantity']}}"
+                                                                hidden>
+                                                        </li>
+                                                    </ul>
+                                                </td>
+                                                <td>
+                                                    <img class="card-img-top book-image"
+                                                        src="{{resources[i]['book_cover']}}" alt="Book Cover"
+                                                        height="300" loading="lazy">
+                                                </td>
+                                            </tr>
+                                        </table>
+                                        <div class="card-body">
+                                            <button class="btn btn-dark" id="{{i}}-edit"
+                                                onclick="edit_book(this.id.slice(0,-5))" type="button">Edit</button>
+                                            <button class="btn btn-danger" id="{{i}}-del"
+                                                onclick="delete_book(this.id.slice(0,-4))" type="button">Delete</button>
+                                        </div>
+                                    </div><br><br>
+                                </td>
+                            </tr>
+                            <input type="text" name="{{i}}-isbn" value="{{resources[i]['isbn']}}" hidden>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <input type="text" id="deleted" name="deleted" hidden>
+                </form>
+            </div>
         </div>
     </main>
 
@@ -85,6 +212,64 @@
                 main.className = ""
             }
         }
+
+        const data_types = ['author', 'publisher', 'category', 'language', 'edition', 'quantity']
+        function edit_book(sno) {
+            const details = document.getElementsByClassName(sno + "-data");
+            var updates = []
+            for (x in data_types) {
+                x = data_types[x]
+                updates.push(document.getElementsByName(sno + '-' + x)[0]);
+            }
+            const btn_edit = document.getElementById(sno + '-edit');
+            const btn_del = document.getElementById(sno + '-del');
+            if (btn_edit.innerHTML == 'Edit') {
+                for (let i = 0; i < data_types.length; i++) {
+                    details[i].hidden = true;
+                    updates[i].hidden = false;
+                    updates[i].required = true;
+                    updates[i].value = details[i].innerHTML;
+                    btn_edit.innerHTML = "Done";
+                    btn_del.innerHTML = "Cancel";
+                }
+            }
+            else {
+                for (let i = 0; i < updates.length; i++) {
+                    details[i].hidden = false;
+                    updates[i].hidden = true;
+                    updates[i].required = false;
+                    updates[i].value = updates[i].value.replace(';', ', ')
+                    details[i].innerHTML = updates[i].value;
+                    btn_edit.innerHTML = "Edit";
+                    btn_del.innerHTML = "Delete";
+                }
+            }
+        }
+
+        function delete_book(sno) {
+            const details = document.getElementsByClassName(sno + "-data");
+            var updates = []
+            for (x in data_types) {
+                x = data_types[x]
+                updates.push(document.getElementsByName(sno + '-' + x)[0]);
+            }
+            const btn_edit = document.getElementById(sno + '-edit');
+            const btn_del = document.getElementById(sno + '-del');
+            if (btn_del.innerHTML == 'Delete') {
+                if (confirm("Are you sure you want to delete " + document.getElementsByClassName(sno + '-title-name')[0].innerHTML + "?"))
+                    document.getElementById(sno + '-card').remove()
+                document.getElementById('deleted').value += sno + ';';
+            }
+            else {
+                for (let i = 0; i < updates.length; i++) {
+                    details[i].hidden = false;
+                    updates[i].hidden = true;
+                    btn_edit.innerHTML = "Edit";
+                    btn_del.innerHTML = "Delete";
+                }
+            }
+        }
+
     </script>
     <script src="../static/Bootstrap/code.js"></script>
     <script src="../static/Personal/JS/dash.js"></script>

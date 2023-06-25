@@ -38,6 +38,20 @@ class LoggedUsers(db.Model):
     library_url = db.Column(db.String(30))
 
 
+class ResourcesLibrary(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    isbn = db.Column(db.String(30))
+    title = db.Column(db.String(100))
+    edition = db.Column(db.String(10))
+    author = db.Column(db.String(100))
+    category = db.Column(db.String(100))
+    publisher = db.Column(db.String(200))
+    language = db.Column(db.String(50))
+    quantity = db.Column(db.Integer)
+    user_id = db.Column(db.Integer)
+    book_cover = db.Column(db.String(300))
+
+
 class AidedFuncs():
     def get_user(self):
         db.session.commit()
@@ -54,6 +68,18 @@ class AidedFuncs():
                            'library_phone': elem.library_phone, 'library_address': elem.library_address.split(';'), 'library_url': elem.library_url}
 
         return [user, library, library_offline]
+
+    def get_resources(self):
+        db.session.commit()
+        my_id = self.get_user()[0]['id']
+        main_data = ResourcesLibrary.query.filter_by(user_id=my_id)
+        data = []
+        for i in range(len(list(main_data))):
+            resource = main_data[i]
+            data.append({'isbn': resource.isbn, 'title': resource.title, 'edition': resource.edition, 'author': resource.author, 'category': resource.category,
+                        'publisher': resource.publisher, 'language': resource.language, 'quantity': resource.quantity, 'book_cover': resource.book_cover})
+
+        return data
 
 
 aids = AidedFuncs()
@@ -106,7 +132,7 @@ def home():
                         break
                     elif i+1 == len(username_sign):
                         data = LoggedUsers(username=username_sign, email=email_sign, pswd_hash=hasher.get_hash(password_sign), user_hash=hasher.get_hash(
-                            username_sign), name=name_sign, avatar=0, phone="", author="", category="", language="", publisher="")
+                            username_sign), name=name_sign, avatar=0, phone="", author="", category="", language="", publisher="", library_name="", library_email="", library_phone="", library_address="", library_url="")
                         db.session.add(data)
                         db.session.commit()
                         return render_template('success_signup.html')
@@ -236,6 +262,7 @@ def add_resource(task):
         return redirect('/')
     else:
         user, library, library_offline = aids.get_user()
+        resources = aids.get_resources()
         if user == None:
             return render_template('cookie_mismatch.html')
 
@@ -243,7 +270,10 @@ def add_resource(task):
 
         if request.method == 'POST':
             isbn = request.form['isbn']
-            title = request.form['title-hidden']
+            title = request.cookies.get('title')
+            resp = make_response(redirect('/'))
+            resp.set_cookie(
+                'title', '', expires='Thu, 01 Jan 1970 00:00:00 UTC')
             edition = request.form['edition']
             author = request.form['hidden-author-tag']
             category = request.form['hidden-category-tag']
@@ -254,12 +284,68 @@ def add_resource(task):
             all_language = request.form['hid-language-options']
             all_publisher = request.form['hid-publisher-options']
             quantity = request.form['quantity']
+            book_cover = request.form['book-cover-url']
 
             data = LoggedUsers.query.filter_by(id=user['id']).first()
             data.author = all_author
             data.category = all_category
             data.language = all_language
             data.publisher = all_publisher
+            db.session.add(data)
+            main_data = ResourcesLibrary(isbn=isbn, title=title, edition=edition, author=author, category=category,
+                                         publisher=publisher, language=language, quantity=quantity, user_id=user['id'], book_cover=book_cover)
+            db.session.add(main_data)
+            db.session.commit()
+            return resp
+
+    elif task == "all-resource":
+
+        if request.method == 'POST':
+            deleted = request.form['deleted'].split(';')
+            deleted.remove('')
+            deleted = list(map(int, deleted))
+            for i in range(len(resources)):
+                data = ResourcesLibrary.query.filter_by(user_id=user['id']).filter_by(
+                    isbn=request.form[f'{i}-isbn']).first()
+                if i in deleted:
+                    db.session.delete(data)
+                else:
+                    data.author = request.form[f'{i}-author'].replace(', ', ';')+';'
+                    data.publisher = request.form[f'{i}-publisher'].replace(', ', ';')+';'
+                    data.category = request.form[f'{i}-category'].replace(', ', ';')+';'
+                    data.language = request.form[f'{i}-language'].replace(', ', ';')+';'
+                    data.edition = request.form[f'{i}-edition']
+                    data.quantity = request.form[f'{i}-quantity']
+                    db.session.add(data)
+
+            db.session.commit()
+            return redirect('/')
+
+    elif task == "library":
+
+        if request.method == 'POST':
+            name = request.form['name-lib'].replace(';', '')
+            email = request.form['email-lib'].replace(';', '')
+            phone = request.form['phone-lib'].replace(';', '')
+            address_1 = request.form['address-1'].replace(';', '')
+            address_2 = request.form['address-2'].replace(';', '')
+            address_city = request.form['address-city'].replace(';', '')
+            address_state = request.form['address-state'].replace(';', '')
+            address_postal = str(
+                request.form['address-postal']).replace(';', '')
+            address_country = request.form['address-country'].replace(';', '')
+            web = request.form['web-lib'].replace(';', '')
+
+            data = LoggedUsers.query.filter_by(id=user['id']).first()
+            data.library_name = name
+            data.library_email = email
+            data.library_phone = phone
+            adrs = ';'.join([address_1, address_2, address_city,
+                            address_state, address_postal, address_country])
+            if adrs == ";;;;;":
+                adrs = ""
+            data.library_address = adrs
+            data.library_url = web
             db.session.add(data)
             db.session.commit()
             return redirect('/')
@@ -281,31 +367,7 @@ def add_resource(task):
             db.session.commit()
             return redirect('/')
 
-    elif task == "library":
-
-        if request.method == 'POST':
-            name = request.form['name-lib'].replace(';','')
-            email = request.form['email-lib'].replace(';','')
-            phone = request.form['phone-lib'].replace(';','')
-            address_1 = request.form['address-1'].replace(';','')
-            address_2 = request.form['address-2'].replace(';','')
-            address_city = request.form['address-city'].replace(';','')
-            address_state = request.form['address-state'].replace(';','')
-            address_postal = str(request.form['address-postal']).replace(';','')
-            address_country = request.form['address-country'].replace(';','')
-            web = request.form['web-lib'].replace(';','')
-
-            data = LoggedUsers.query.filter_by(id=user['id']).first()
-            data.library_name = name
-            data.library_email = email
-            data.library_phone = phone
-            data.library_address = ';'.join([address_1,address_2,address_city,address_state,address_postal,address_country])
-            data.library_url = web
-            db.session.add(data)
-            db.session.commit()
-            return redirect('/')
-
-    return render_template(task+'.html', user=user, library=library, library_offline=library_offline)
+    return render_template(task+'.html', user=user, library=library, library_offline=library_offline, resources=resources)
 
 
 def isbn_decoder():
