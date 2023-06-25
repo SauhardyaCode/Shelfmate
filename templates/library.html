@@ -486,11 +486,13 @@
 
     function delete_lib() {
       const inputs = document.getElementsByClassName('form-add')
-      for (i in inputs) {
-        inputs[i].required = false
-        inputs[i].value = ""
+      if (confirm("Are you sure you want to delete your Library Details?")) {
+        for (i in inputs) {
+          inputs[i].required = false
+          inputs[i].value = ""
+        }
+        document.getElementById('save-btn').click()
       }
-      document.getElementById('save-btn').click()
     }
 
   </script>
