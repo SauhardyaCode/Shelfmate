@@ -35,7 +35,7 @@ class LoggedUsers(db.Model):
     library_email = db.Column(db.String(50))
     library_phone = db.Column(db.String(20))
     library_address = db.Column(db.String(150))
-    library_url = db.Column(db.String(30))
+    library_url = db.Column(db.String(300))
 
 
 class ResourcesLibrary(db.Model):
@@ -50,6 +50,17 @@ class ResourcesLibrary(db.Model):
     quantity = db.Column(db.Integer)
     user_id = db.Column(db.Integer)
     book_cover = db.Column(db.String(300))
+
+
+class MembersLibrary(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100))
+    phone = db.Column(db.String(20))
+    email = db.Column(db.String(100))
+    address = db.Column(db.String(150))
+    username = db.Column(db.String(50))
+    avatar = db.Column(db.Integer)
+    user_id = db.Column(db.Integer)
 
 
 class AidedFuncs():
@@ -78,6 +89,18 @@ class AidedFuncs():
             resource = main_data[i]
             data.append({'isbn': resource.isbn, 'title': resource.title, 'edition': resource.edition, 'author': resource.author, 'category': resource.category,
                         'publisher': resource.publisher, 'language': resource.language, 'quantity': resource.quantity, 'book_cover': resource.book_cover})
+
+        return data
+
+    def get_members(self):
+        db.session.commit()
+        my_id = self.get_user()[0]['id']
+        main_data = MembersLibrary.query.filter_by(user_id=my_id)
+        data = []
+        for i in range(len(list(main_data))):
+            member = main_data[i]
+            data.append({'name': member.name, 'phone': member.phone, 'email': member.email,
+                        'address': member.address, 'username': member.username, 'avatar': member.avatar})
 
         return data
 
@@ -263,6 +286,7 @@ def add_resource(task):
     else:
         user, library, library_offline = aids.get_user()
         resources = aids.get_resources()
+        members = aids.get_members()
         if user == None:
             return render_template('cookie_mismatch.html')
 
@@ -271,7 +295,7 @@ def add_resource(task):
         if request.method == 'POST':
             isbn = request.form['isbn']
             title = request.cookies.get('title')
-            resp = make_response(redirect('/'))
+            resp = make_response(redirect('/all-resource'))
             resp.set_cookie(
                 'title', '', expires='Thu, 01 Jan 1970 00:00:00 UTC')
             edition = request.form['edition']
@@ -310,16 +334,20 @@ def add_resource(task):
                 if i in deleted:
                     db.session.delete(data)
                 else:
-                    data.author = request.form[f'{i}-author'].replace(', ', ';')+';'
-                    data.publisher = request.form[f'{i}-publisher'].replace(', ', ';')+';'
-                    data.category = request.form[f'{i}-category'].replace(', ', ';')+';'
-                    data.language = request.form[f'{i}-language'].replace(', ', ';')+';'
+                    data.author = request.form[f'{i}-author'].replace(
+                        ', ', ';')+';'
+                    data.publisher = request.form[f'{i}-publisher'].replace(
+                        ', ', ';')+';'
+                    data.category = request.form[f'{i}-category'].replace(
+                        ', ', ';')+';'
+                    data.language = request.form[f'{i}-language'].replace(
+                        ', ', ';')+';'
                     data.edition = request.form[f'{i}-edition']
                     data.quantity = request.form[f'{i}-quantity']
                     db.session.add(data)
 
             db.session.commit()
-            return redirect('/')
+            return redirect('/dashboard/all-resource')
 
     elif task == "library":
 
@@ -348,7 +376,7 @@ def add_resource(task):
             data.library_url = web
             db.session.add(data)
             db.session.commit()
-            return redirect('/')
+            return redirect('/dashboard/library')
 
     elif task == "minor-settings":
 
@@ -365,9 +393,30 @@ def add_resource(task):
             data.language = language
             db.session.add(data)
             db.session.commit()
-            return redirect('/')
+            return redirect('/dashboard/minor-settings')
 
-    return render_template(task+'.html', user=user, library=library, library_offline=library_offline, resources=resources)
+    elif task == "add-member":
+
+        if request.method == 'POST':
+            name = request.form['name-member']
+            username = request.form['username-member']
+            email = request.form['email-member']
+            phone = request.form['phone-member']
+            address = ""
+            for i in range(1, 7):
+                x = request.form[f'address-{i}']
+                if x.strip() != "":
+                    address += x+', '
+            address = address[:-2]
+            avatar = request.form['avatar']
+
+            data = MembersLibrary(name=name, phone=phone, email=email, address=address,
+                                  username=username, avatar=avatar, user_id=user['id'])
+            db.session.add(data)
+            db.session.commit()
+            redirect('/dashboard/all-member')
+
+    return render_template(task+'.html', user=user, library=library, library_offline=library_offline, resources=resources, members=members)
 
 
 def isbn_decoder():

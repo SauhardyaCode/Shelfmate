@@ -24,7 +24,7 @@
                     <b>Profile Photo</b><br>
 
                     <img src="../static/Personal/Images/avatars/avatar_{{user['avatar']+21*((21-user['avatar'])//21)-((((21-user['avatar'])//21)+1)%2)}}.png"
-                        width="70" style="filter: blur(1px); cursor: pointer;" id="before"
+                        width="70" style="filter: blur(2px); cursor: pointer;" id="before"
                         onclick="JavaScript:scroll_pic(-1)">
                     {% for i in range(1,5) %}
                     &nbsp;
@@ -34,7 +34,7 @@
                     &nbsp;
                     {% endfor %}
                     <img src="../static/Personal/Images/avatars/avatar_{{(user['avatar']+1)%(22)}}.png" width="70"
-                        style="filter: blur(1px); cursor: pointer;" id="after" onclick="JavaScript:scroll_pic(1)">
+                        style="filter: blur(2px); cursor: pointer;" id="after" onclick="JavaScript:scroll_pic(1)">
                 </div>
             </div>
             <div class="py-2">

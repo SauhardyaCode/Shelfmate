@@ -75,6 +75,7 @@
                     <input type="text" class="form-ontrol" id="data"
                         style="font-size: 1.2em; outline: none; width: 100%;">
                     <div class="modal-body" style="text-align: center;">
+                        <button type="submit" disabled hidden></button>
                         <button type="submit" class="btn btn-dark" data-bs-dismiss="modal">Add</button>
                     </div>
                 </form>
@@ -219,7 +220,7 @@
             const elem = document.getElementsByName('hid-' + type)[0];
             const list = document.getElementById(type + "-list");
             const data = document.getElementById('data').value.replace(/;/g, '').trim();
-            if (data != "" && !elem.value.includes(data+';')) {
+            if (data != "" && !elem.value.includes(data + ';')) {
                 elem.value += data + ';';
                 list.innerHTML = ""
 
@@ -237,6 +238,7 @@
                     <label class="form-check-label stretched-link" style="cursor: pointer;">+ Add `+ type.charAt(0).toUpperCase() + type.slice(1) + `</label>
                     </li>`
             }
+            delete_toggle()
         }
 
         function delete_toggle() {
