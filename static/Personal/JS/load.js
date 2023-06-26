@@ -16,10 +16,15 @@ window.addEventListener('load', () => {
 const all_forms = document.getElementsByTagName('form')
 all_forms[all_forms.length - 1].addEventListener('submit', () => {
     let main = document.getElementsByTagName('main')[0]
-    main.style.backgroundColor = "white";
     setTimeout(() => {
         main.innerHTML += `<div class="show" id="loading"><div id="loading-content">
                 <div class="loader"></div>
                 </div></div>`
     }, 1000);
+})
+
+window.addEventListener('unload', () => {
+    if (window.opener && window.opener != window) {
+        document.getElementById('loading').remove()
+    }
 })

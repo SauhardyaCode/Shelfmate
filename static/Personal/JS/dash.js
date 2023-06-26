@@ -68,16 +68,20 @@ function create_active(link) {
 
     for (let i = 0; i < document.getElementsByClassName('ripple').length; i++) {
         const elem = document.getElementsByClassName('ripple')[i];
-        elem.addEventListener('click', () => {
-            let main = document.getElementsByTagName('main')[0]
-            main.style.backgroundColor = "white";
-            main.innerHTML += `<div class="show" id="loading"><div id="loading-content">
-            <div class="loader"></div>
-            </div></div>`
-        })
         if (elem.id == link) {
             elem.className += " active"
             elem.removeAttribute("href")
+        }
+        else {
+            elem.addEventListener('click', (event) => {
+                if (!event.ctrlKey) {
+                    let main = document.getElementsByTagName('main')[0]
+                    main.style.backgroundColor = "white";
+                    main.innerHTML += `<div class="show" id="loading"><div id="loading-content">
+                <div class="loader"></div>
+                </div></div>`
+                }
+            })
         }
     }
 }

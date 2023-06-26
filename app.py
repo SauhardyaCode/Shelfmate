@@ -295,7 +295,7 @@ def add_resource(task):
         if request.method == 'POST':
             isbn = request.form['isbn']
             title = request.cookies.get('title')
-            resp = make_response(redirect('/all-resource'))
+            resp = make_response(redirect('/dashboard/all-resource'))
             resp.set_cookie(
                 'title', '', expires='Thu, 01 Jan 1970 00:00:00 UTC')
             edition = request.form['edition']

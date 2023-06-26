@@ -10,9 +10,56 @@
     <title>Shelfmate: @{{user['username']}}</title>
     <link rel="stylesheet" href="../static/Personal/CSS/dashboard.css">
     <link rel="stylesheet" href="../static/Personal/CSS/loading.css">
+    <style>
+        .list-tag {
+            font-size: 0.8em;
+            font-weight: 500;
+        }
+
+        .card-personal {
+            background-color: rgb(234, 234, 234);
+        }
+
+        .main-grouper {
+            padding: 5%;
+            width: 20em;
+        }
+
+        .details-member {
+            font-size: 0.8em;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        @media (min-width: 991.98px) {
+            .card-personal {
+                width: 20em;
+            }
+
+            .member-image {
+                width: 100px;
+            }
+        }
+
+        @media (max-width: 991.98px) {
+            .card-personal {
+                width: 15em;
+            }
+
+            .main-grouper {
+                width: 18em;
+                text-align: left;
+            }
+
+            .member-image {
+                width: 50px;
+            }
+        }
+    </style>
 </head>
 
-<body>
+<body style="background-color: gainsboro;">
     <div id="loading" class="show"></div>
 
     <header>
@@ -67,8 +114,48 @@
 
     <main style="margin-top: 58px">
         <div class="container-fluid pt-4" id="main-block">
-            hello
+            <div class="container pt-4" id="main-block"
+                style="background-color:rgb(236, 236, 236); padding: 5%; width: 95%; text-align: right;">
+                <p class="h4" style="text-align: left;">Members</p>
+                <form method="post" autocomplete="off">
+                    <button type="submit" disabled hidden></button>
+                    <button class="btn btn-secondary" type="submit">Save Changes</button>
+                    <hr>
+                    {% set ns = namespace() %}
+                    {% set ns.index = 0 %}
+                    <table style="text-align: left;">
+                        <tbody>
+                            {% for i in range(members|length) %}
+                            {% if ns.index==0 %}
+                            <tr>
+                                {% endif %}
+                                <td id="{{i}}-card">
+                                    <div class="card card-personal" style="background-color: white;">
+                                        <div class="card-body">
+                                            <img src="../static/Personal/Images/members/member_{{members[i]['avatar']}}.png"
+                                                style="float: left; padding-right: 5%;" class="member-image">
+                                            <div class="card-title {{i}}-title-name h6"
+                                                style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
+                                                {{members[i]['name']}}</div>
+                                            <div class="details-member" style="color: rgb(168, 168, 168);">
+                                                {{members[i]['address']}}</div>
+                                            <span class="details-member">{{members[i]['phone']}}</span>
+                                            <a class="details-member"
+                                                href="mailto:{{members[i]['email']}}">{{members[i]['email']}}</a>
+                                        </div>
+                                    </div><br><br>
+                                </td>
+                                {% if ns.index==1 %}
+                            </tr>
+                            {% endif %}
 
+                            {% set ns.index = 1 - ns.index %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <input type="text" id="deleted" name="deleted" hidden>
+                </form>
+            </div>
         </div>
     </main>
 
@@ -92,3 +179,5 @@
 </body>
 
 </html>
+
+<!-- Placing the member cards properly -->
