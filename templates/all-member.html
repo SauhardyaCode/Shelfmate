@@ -56,6 +56,48 @@
                 width: 50px;
             }
         }
+
+        @media (min-width: 1044px),
+        (min-width: 769.91px) and (max-width: 991.98px) {
+            .floater-left {
+                float: left;
+            }
+
+            .floater-right {
+                float: right;
+            }
+        }
+
+        @media (max-width: 1044px) and (min-width: 991.98px),
+        (max-width: 769.91px) {
+            .floater-left {
+                float: none;
+                margin-bottom: -10%;
+            }
+
+            .floater-right {
+                float: none;
+                margin-bottom: -10%;
+            }
+
+            #space-enter {
+                display: none;
+            }
+        }
+
+        @media (max-width: 769.91px) {
+            .floater-member {
+                font-size: 1.1em;
+            }
+
+            .member-image {
+                width: 100px;
+            }
+
+            .card-title {
+                font-size: 0.9em;
+            }
+        }
     </style>
 </head>
 
@@ -114,8 +156,8 @@
 
     <main style="margin-top: 58px">
         <div class="container-fluid pt-4" id="main-block">
-            <div class="container pt-4" id="main-block"
-                style="background-color:rgb(236, 236, 236); padding: 5%; width: 95%; text-align: right;">
+            <div class="container pt-4" id="main-block-inside"
+                style="background-color:rgb(236, 236, 236); width: 95%; text-align: right; padding: 5%;">
                 <p class="h4" style="text-align: left;">Members</p>
                 <form method="post" autocomplete="off">
                     <button type="submit" disabled hidden></button>
@@ -123,36 +165,38 @@
                     <hr>
                     {% set ns = namespace() %}
                     {% set ns.index = 0 %}
-                    <table style="text-align: left;">
-                        <tbody>
-                            {% for i in range(members|length) %}
-                            {% if ns.index==0 %}
-                            <tr>
-                                {% endif %}
-                                <td id="{{i}}-card">
-                                    <div class="card card-personal" style="background-color: white;">
-                                        <div class="card-body">
-                                            <img src="../static/Personal/Images/members/member_{{members[i]['avatar']}}.png"
-                                                style="float: left; padding-right: 5%;" class="member-image">
-                                            <div class="card-title {{i}}-title-name h6"
-                                                style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
-                                                {{members[i]['name']}}</div>
-                                            <div class="details-member" style="color: rgb(168, 168, 168);">
-                                                {{members[i]['address']}}</div>
-                                            <span class="details-member">{{members[i]['phone']}}</span>
-                                            <a class="details-member"
-                                                href="mailto:{{members[i]['email']}}">{{members[i]['email']}}</a>
-                                        </div>
-                                    </div><br><br>
-                                </td>
-                                {% if ns.index==1 %}
-                            </tr>
-                            {% endif %}
 
-                            {% set ns.index = 1 - ns.index %}
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                    {% for i in range(members|length) %}
+                    {% if ns.index==0 %}
+                    <div class="floater-member">
+                        <span id="{{i}}-card" class="floater-left">
+                            {% else %}
+                            <span id="{{i}}-card" class="floater-right">
+                                {% endif %}
+                                <div class="card card-personal" style="background-color: white;">
+                                    <div class="card-body">
+                                        <span><img src="../static/Personal/Images/display/edit.png" width="15px"
+                                                style="margin-top: -1%; cursor: pointer;"></span>
+                                        <img src="../static/Personal/Images/members/member_{{members[i]['avatar']}}.png"
+                                            style="float: left; padding-right: 5%;" class="member-image">
+                                        <div class="card-title {{i}}-title-name h6"
+                                            style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
+                                            {{members[i]['name']}}</div>
+                                        <div class="details-member" style="color: rgb(168, 168, 168);">
+                                            {{members[i]['address']}}</div>
+                                        <span class="details-member">{{members[i]['phone']}}</span>
+                                        <a class="details-member"
+                                            href="mailto:{{members[i]['email']}}">{{members[i]['email']}}</a>
+                                    </div>
+                                </div><br><br>
+                            </span>
+                            {% if ns.index==1 %}
+                    </div>
+                    {% endif %}
+                    <span id="space-enter"><br><br><br><br><br></span>
+                    {% set ns.index = 1 - ns.index %}
+                    {% endfor %}
+
                     <input type="text" id="deleted" name="deleted" hidden>
                 </form>
             </div>
@@ -180,4 +224,5 @@
 
 </html>
 
-<!-- Placing the member cards properly -->
+<!-- Placinf edit and delete buttons on three dots -->
+<!-- getting unique usernames is also important -->

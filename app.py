@@ -414,7 +414,7 @@ def add_resource(task):
                                   username=username, avatar=avatar, user_id=user['id'])
             db.session.add(data)
             db.session.commit()
-            redirect('/dashboard/all-member')
+            return redirect('/dashboard/all-member')
 
     return render_template(task+'.html', user=user, library=library, library_offline=library_offline, resources=resources, members=members)
 
