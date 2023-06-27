@@ -122,14 +122,15 @@
                             style="color: red;">&nbsp;*</span></label>
                     <div class="col-sm-10">
                         <input type="text" class="form-add" name="username-member"
-                            placeholder="Unique username for member" required>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            placeholder="Unique username for member" onblur="JavaScript:check_name_validity(this)"
+                            required>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                         <button type="button" class="btn btn-outline-secondary" style="font-size: 0.8em;"
                             onclick="JavaScript:suggest_username()">Suggest</button>
                     </div>
                 </div><br>
                 <div class="form-group row">
                     <label class="col-sm-2 col-form-label form-head">Email<span
-                        style="color: red;">&nbsp;*</span></label>
+                            style="color: red;">&nbsp;*</span></label>
                     <div class="col-sm-10">
                         <input type="email" class="form-add" name="email-member" placeholder="Email" required>
                     </div>
@@ -434,6 +435,11 @@
         <input type="text" id="avatar-name" value="0" name="avatar" hidden>
         </form>
     </main>
+    <div id="all-user" hidden>
+        {% for i in range(members|length) %}
+        {{members[i]['username']}};
+        {% endfor %}
+    </div>
 
     <script>
         const before = document.getElementById('before');
@@ -452,13 +458,26 @@
         }
 
         const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        const all_users = document.getElementById('all-user').innerHTML.split(';')
         function suggest_username() {
             let result = ' ';
             const charactersLength = characters.length;
             for (let i = 0; i < 10; i++) {
                 result += characters.charAt(Math.floor(Math.random() * charactersLength));
             }
-            document.getElementsByName('username-member')[0].value = result;
+            if (all_users.includes(result)) {
+                suggest_username();
+            }
+            else {
+                document.getElementsByName('username-member')[0].value = result;
+            }
+        }
+
+        function check_name_validity(elem) {
+            if (all_users.includes(elem.value)) {
+                alert("This unique username is already taken.")
+                elem.value = ""
+            }
         }
     </script>
 
