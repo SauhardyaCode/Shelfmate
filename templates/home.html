@@ -1,60 +1,76 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends 'base_layout.html' %}
+{% block title %}
+Your Library, Elevated
+{% endblock %}
 
-<head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="icon" href="../static/Personal/Images/display/logo.png">
-  <link rel="stylesheet" href="../static/Bootstrap/style.css">
-  <link rel="stylesheet" href="../static/Personal/CSS/feeds.css">
-  <link rel="stylesheet" href="../static/Personal/CSS/home.css">
-  <title>Shelfmate: Your Library, Elevated</title>
-  <link rel="stylesheet" href="../static/Personal/CSS/loading.css">
-</head>
+{% block style %}
+<style>
+  #parallax {
+    background-image: url("../static/Personal/Images/display/parallax.jpg");
+    height: 300px;
+    background-attachment: fixed;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+  }
 
-<body>
-  <div id="loading" class="show"></div>
+  #splash {
+    height: 310px;
+    margin-top: -310px;
+    background-color: rgba(51, 51, 51, 0.7);
+  }
 
+  #splash div p {
+    color: white;
+    padding-top: 10%;
+    font-size: 1.2em;
+  }
 
-  <div class="navbar-feeds"></div>
+  #splash div h3 {
+    color: whitesmoke;
+  }
 
-  <div id="parallax"></div>
-  <div id="splash">
-    <div class="container">
-      <p><i>Your Library, Elevated... - Shelfmate</i></p>
-      <h3>OPEN A LIBRARY<br>START MANAGING WITH EASE</h3>
-    </div>
-    <div class="container d-grid gap-2 col-2 mx-auto" id="log-btn">
-      <button class="btn btn-dark" data-bs-toggle="offcanvas" data-bs-target="#staticBackdrop"
-        aria-controls="staticBackdrop">Login</button>
-    </div>
-  </div>
+  #follow-apps a {
+    margin-right: 2%;
+  }
 
-  <div class="featured container-fluid">
-    <div class="images container">
-      {% for i in range(1, 10) %}
-      <img src="../static/Personal/Images/featured/lib{{i}}.jpg" width="50">
-      {% endfor %}
-    </div>
-  </div>
+  .featured img {
+    margin: 3%;
+    margin-top: 5%;
+    margin-bottom: 5%;
+  }
 
-  <div class="footer-feeds"></div>
+  .featured {
+    background: rgb(236, 245, 255);
+  }
 
-  <div id="message" hidden>{{message}}</div>
-  <div id="error" hidden>{{error}}</div>
-  <script>
-    var error = parseInt(document.getElementById('error').innerHTML);
-    var message = document.getElementById('message').innerHTML;
-    if (error) {
-      alert(message);
+  @media (max-width: 991.98px) {
+    #log-btn {
+      margin-top: 15%;
     }
-  </script>
+  }
+</style>
+{% endblock %}
 
-  <script src="../static/Bootstrap/code.js"></script>
-  <script src="../static/Personal/JS/feeds.js"></script>
-  <script src="../static/Personal/JS/load.js"></script>
+{% block body%}
+<div id="parallax"></div>
+<div id="splash">
 
-</body>
+  <div class="container">
+    <p><i>Your Library, Elevated... - Shelfmate</i></p>
+    <h3>OPEN A LIBRARY<br>START MANAGING WITH EASE</h3>
+  </div>
+  <div class="container d-grid gap-2 col-2 mx-auto" id="log-btn">
+    <button class="btn btn-dark" data-bs-toggle="offcanvas" data-bs-target="#staticBackdrop"
+      aria-controls="staticBackdrop" onclick="document.cookie='type=log'">Login</button>
+  </div>
+</div>
 
-</html>
+<div class="featured container-fluid">
+  <div class="images container">
+    {% for i in range(1, 10) %}
+    <img src="../static/Personal/Images/featured/lib{{i}}.jpg" width="50">
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

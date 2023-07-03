@@ -17,9 +17,12 @@ const all_forms = document.getElementsByTagName('form')
 all_forms[all_forms.length - 1].addEventListener('submit', () => {
     let main = document.getElementsByTagName('main')[0]
     setTimeout(() => {
-        main.innerHTML += `<div class="show" id="loading"><div id="loading-content">
+        try {
+            main.innerHTML += `<div class="show" id="loading"><div id="loading-content">
                 <div class="loader"></div>
                 </div></div>`
+        }
+        catch (e) { }
     }, 1000);
 })
 

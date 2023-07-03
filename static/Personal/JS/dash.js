@@ -66,7 +66,7 @@ function create_active(link) {
     var index = link.search('dashboard/')
     link = link.slice(index + 10)
 
-    for (let i = 0; i < document.getElementsByClassName('ripple').length; i++) {
+    for (let i = 0; i < document.getElementsByClassName('ripple').length-1; i++) {
         const elem = document.getElementsByClassName('ripple')[i];
         if (elem.id == link) {
             elem.className += " active"

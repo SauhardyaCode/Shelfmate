@@ -1,30 +1,14 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends 'base_layout.html' %}
+{% block title %}
+Sign Up Success
+{% endblock %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="../static/Bootstrap/style.css">
-    <link rel="stylesheet" href="../static/Personal/CSS/feeds.css">
-    <title>Sign Up Success</title>
-</head>
-
-<body>
-    <div class="navbar-feeds"></div>
-
-    <div class="container">
-        <h2>Hurray! You have signed in successfully.. Now log in to your account..</h2><br><br>
-        <div class="container d-grid gap-2 col-2 mx-auto">
-            <button class="btn btn-dark" data-bs-toggle="offcanvas" data-bs-target="#staticBackdrop"
-              aria-controls="staticBackdrop">Login</button>
-        </div>
+{% block body %}
+<div class="container">
+    <h2>Hurray! You have signed in successfully.. Now log in to your account..</h2><br><br>
+    <div class="container d-grid gap-2 col-2 mx-auto">
+        <button class="btn btn-dark" data-bs-toggle="offcanvas" data-bs-target="#staticBackdrop"
+            aria-controls="staticBackdrop" onclick="document.cookie='type=log'">Login</button>
     </div>
-
-    <div class="footer-feeds"></div>
-
-    <script src="../static/Bootstrap/code.js"></script>
-    <script src="../static/Personal/JS/feeds.js"></script>
-</body>
-
-</html>
+</div>
+{% endblock %}

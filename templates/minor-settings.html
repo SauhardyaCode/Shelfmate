@@ -1,286 +1,208 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends 'base_account.html' %}
+{% block style %}
+<style>
+    #main-block {
+        background-color: whitesmoke;
+        padding: 5%;
+        width: 95%;
+    }
+</style>
+{% endblock %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="../static/Personal/Images/display/logo.png">
-    <link rel="stylesheet" href="../static/Bootstrap/style.css">
-    <title>Shelfmate: @{{user['username']}}</title>
-    <link rel="stylesheet" href="../static/Personal/CSS/dashboard.css">
-    <link rel="stylesheet" href="../static/Personal/CSS/loading.css">
-</head>
-
-<body style="background-color:gainsboro;">
-    <div id="loading" class="show"></div>
-
-    <header>
-        <nav id="sidebarMenu" class="d-lg-block sidebar bg-white">
-            <div class="position-sticky dash-content" style="margin-left: -8%;"></div>
-        </nav>
-        <nav id="main-navbar" class="navbar navbar-expand-lg navbar-light fixed-top gradient">
-            <div class="container-fluid">
-                <button id="toggler" onclick="JavaScript:toggle()" type="button">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                {% for i in range(1,5) %}
-                &nbsp;
-                {% endfor %}
-                <a class="navbar-brand" href="/">
-                    <img src="../static/Personal/Images/display/logo.png" height="40" />
-                </a>
-                <div class="navbar-brand" id="brand">Shelfmate</div>
-
-                <ul class=" ms-auto d-flex flex-row" data-bs-toggle="modal" data-bs-target="#settingModal"
-                    style="cursor: pointer;">
-                    <span id="account-name">{{user['name']}}
-                    </span>&nbsp;&nbsp;<img src="../static/Personal/Images/avatars/avatar_{{user['avatar']}}.png"
-                        class="rounded-circle" height="35" alt="" loading="lazy" style="margin-bottom: 2%;" />
-                </ul>
-
-            </div>
-        </nav>
-    </header>
-    <div class="modal fade" id="settingModal" tabindex="-1" aria-labelledby="settingModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header" style="background-color:darkgrey;">
-                    <img src="../static/Personal/Images/avatars/avatar_{{user['avatar']}}.png" width="120px">
-                    {% for i in range(1,5) %}
-                    &nbsp;
-                    {% endfor %}
-                    <h1 class="modal-title fs-5" id="settingModalLabel">
-                        {{user['name']}}
-                    </h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+{% block general_body %}
+<div class="modal fade" id="askModal" tabindex="-1" aria-labelledby="askModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="background-color:rgb(241, 241, 241);">
+            <form method="POST" action="JavaScript:add_option()" autocomplete="off">
+                <div class="modal-header">
+                    <label for="data" id="modal-header" style="font-weight: 500; font-size: 1.2em;"></label>
                 </div>
-                <div class="modal-body">
-                    <button type="button" class="btn btn-dark" data-bs-dismiss="modal"><a href="/account/settings"
-                            style="text-decoration:none; color: white;">My Account</a></button>
-                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal"><a href="/account/logout"
-                            style="text-decoration:none; color: white;">Log Out</a></button>
+                <input type="text" class="form-ontrol" id="data" style="font-size: 1.2em; outline: none; width: 100%;">
+                <div class="modal-body" style="text-align: center;">
+                    <button type="submit" disabled hidden></button>
+                    <button type="submit" class="btn btn-dark" data-bs-dismiss="modal">Add</button>
                 </div>
-            </div>
+            </form>
         </div>
     </div>
+</div>
+{% endblock %}
 
-    <div class="modal fade" id="askModal" tabindex="-1" aria-labelledby="askModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content" style="background-color:rgb(241, 241, 241);">
-                <form method="POST" action="JavaScript:add_option()" autocomplete="off">
-                    <div class="modal-header">
-                        <label for="data" id="modal-header" style="font-weight: 500; font-size: 1.2em;"></label>
-                    </div>
-                    <input type="text" class="form-ontrol" id="data"
-                        style="font-size: 1.2em; outline: none; width: 100%;">
-                    <div class="modal-body" style="text-align: center;">
-                        <button type="submit" disabled hidden></button>
-                        <button type="submit" class="btn btn-dark" data-bs-dismiss="modal">Add</button>
-                    </div>
-                </form>
-            </div>
-        </div>
+{% block main_block %}
+<form method="post" autocomplete="off">
+    <span class="h4">Authors</span>
+    <div class="container-fluid" style="text-align: right;" id="del-con-author" hidden>
+        <img src="../static/Personal/Images/display/delete-black.png" width="40px" id="del-author"
+            onmouseenter="this.src='../static/Personal/Images/display/delete-red.png'"
+            onmouseleave="this.src='../static/Personal/Images/display/delete-black.png'"
+            onclick="JavaScript:delete_checks(this.id.split('-')[1])" style="cursor: pointer;">
+    </div>
+    <hr>
+    <ul class="list-group" id="author-list">
+        {% for author in library['author'] %}
+
+        <li class="list-group-item" id="{{author}}-block">
+            <input class="form-check-input me-1" type="checkbox" value="{{author}}" id="{{author}}" name="author"
+                onclick="JavaScript:delete_toggle()">
+            <label class="form-check-label stretched-link" for="{{author}}">{{author}}</label>
+        </li>
+        {% endfor %}
+        <li class="list-group-item btn btn-secondary" style="text-align: center;" id="author"
+            onclick="JavaScript:add_message(this.id)" data-bs-toggle="modal" data-bs-target="#askModal">
+            <label class="form-check-label stretched-link" style="cursor: pointer;">+ Add Author</label>
+        </li>
+    </ul><br><br>
+    <span class="h4">Publishers</span>
+    <div class="container-fluid" style="text-align: right;" id="del-con-publisher" hidden>
+        <img src="../static/Personal/Images/display/delete-black.png" width="40px" id="del-publisher"
+            onmouseenter="this.src='../static/Personal/Images/display/delete-red.png'"
+            onmouseleave="this.src='../static/Personal/Images/display/delete-black.png'"
+            onclick="JavaScript:delete_checks(this.id.split('-')[1])" style="cursor: pointer;">
+    </div>
+    <hr>
+    <ul class="list-group" id="publisher-list">
+        {% for publisher in library['publisher'] %}
+
+        <li class="list-group-item" id="{{publisher}}-block">
+            <input class="form-check-input me-1" type="checkbox" value="{{publisher}}" id="{{publisher}}"
+                name="publisher" onclick="JavaScript:delete_toggle()">
+            <label class="form-check-label stretched-link" for="{{publisher}}">{{publisher}}</label>
+        </li>
+        {% endfor %}
+        <li class="list-group-item btn btn-secondary" style="text-align: center;" id="publisher"
+            onclick="JavaScript:add_message(this.id)" data-bs-toggle="modal" data-bs-target="#askModal">
+            <label class="form-check-label stretched-link" style="cursor: pointer;">+ Add Publisher</label>
+        </li>
+    </ul><br><br>
+    <span class="h4">Categories</span>
+    <div class="container-fluid" style="text-align: right;" id="del-con-category" hidden>
+        <img src="../static/Personal/Images/display/delete-black.png" width="40px" id="del-category"
+            onmouseenter="this.src='../static/Personal/Images/display/delete-red.png'"
+            onmouseleave="this.src='../static/Personal/Images/display/delete-black.png'"
+            onclick="JavaScript:delete_checks(this.id.split('-')[1])" style="cursor: pointer;">
+    </div>
+    <hr>
+    <ul class="list-group" id="category-list">
+        {% for category in library['category'] %}
+
+        <li class="list-group-item" id="{{category}}-block">
+            <input class="form-check-input me-1" type="checkbox" value="{{category}}" id="{{category}}" name="category"
+                onclick="JavaScript:delete_toggle()">
+            <label class="form-check-label stretched-link" for="{{category}}">{{category}}</label>
+        </li>
+        {% endfor %}
+        <li class="list-group-item btn btn-secondary" style="text-align: center;" id="category"
+            onclick="JavaScript:add_message(this.id)" data-bs-toggle="modal" data-bs-target="#askModal">
+            <label class="form-check-label stretched-link" style="cursor: pointer;">+ Add Category</label>
+        </li>
+    </ul><br><br>
+    <span class="h4">Languages</span>
+    <div class="container-fluid" style="text-align: right;" id="del-con-language" hidden>
+        <img src="../static/Personal/Images/display/delete-black.png" width="40px" id="del-language"
+            onmouseenter="this.src='../static/Personal/Images/display/delete-red.png'"
+            onmouseleave="this.src='../static/Personal/Images/display/delete-black.png'"
+            onclick="JavaScript:delete_checks(this.id.split('-')[1])" style="cursor: pointer;">
+    </div>
+    <hr>
+    <ul class="list-group" id="language-list">
+        {% for language in library['language'] %}
+
+        <li class="list-group-item" id="{{language}}-block">
+            <input class="form-check-input me-1" type="checkbox" value="{{language}}" id="{{language}}" name="language"
+                onclick="JavaScript:delete_toggle()">
+            <label class="form-check-label stretched-link" for="{{language}}">{{language}}</label>
+        </li>
+        {% endfor %}
+        <li class="list-group-item btn btn-secondary" style="text-align: center;" id="language"
+            onclick="JavaScript:add_message(this.id)" data-bs-toggle="modal" data-bs-target="#askModal">
+            <label class="form-check-label stretched-link" style="cursor: pointer;">+ Add Language</label>
+        </li>
+    </ul><br><br><br>
+    <div class="container-fluid" style="text-align: center;">
+        <input type="submit" value="Save Changes" class="btn btn-dark">
     </div>
 
-    <form method="post" autocomplete="off">
-        <main style="margin-top: 58px;"><br>
-            <div class="container pt-4" id="main-block" style="background-color:whitesmoke; padding: 5%; width: 95%;">
-                <span class="h4">Authors</span>
-                <div class="container-fluid" style="text-align: right;" id="del-con-author" hidden>
-                    <img src="../static/Personal/Images/display/delete-black.png" width="40px" id="del-author"
-                        onmouseenter="this.src='../static/Personal/Images/display/delete-red.png'"
-                        onmouseleave="this.src='../static/Personal/Images/display/delete-black.png'"
-                        onclick="JavaScript:delete_checks(this.id.split('-')[1])" style="cursor: pointer;">
-                </div>
-                <hr>
-                <ul class="list-group" id="author-list">
-                    {% for author in library['author'] %}
+    <div class="hidden" hidden>
+        <input type="text" name="hid-author" value="{%for x in library['author'] %}{{x}};{% endfor %}">
+        <input type="text" name="hid-publisher" value="{%for x in library['publisher'] %}{{x}};{% endfor %}">
+        <input type="text" name="hid-category" value="{%for x in library['category'] %}{{x}};{% endfor %}">
+        <input type="text" name="hid-language" value="{%for x in library['language'] %}{{x}};{% endfor %}">
+    </div>
+</form>
+{% endblock %}
 
-                    <li class="list-group-item" id="{{author}}-block">
-                        <input class="form-check-input me-1" type="checkbox" value="{{author}}" id="{{author}}"
-                            name="author" onclick="JavaScript:delete_toggle()">
-                        <label class="form-check-label stretched-link" for="{{author}}">{{author}}</label>
-                    </li>
-                    {% endfor %}
-                    <li class="list-group-item btn btn-secondary" style="text-align: center;" id="author"
-                        onclick="JavaScript:add_message(this.id)" data-bs-toggle="modal" data-bs-target="#askModal">
-                        <label class="form-check-label stretched-link" style="cursor: pointer;">+ Add Author</label>
-                    </li>
-                </ul><br><br>
-                <span class="h4">Publishers</span>
-                <div class="container-fluid" style="text-align: right;" id="del-con-publisher" hidden>
-                    <img src="../static/Personal/Images/display/delete-black.png" width="40px" id="del-publisher"
-                        onmouseenter="this.src='../static/Personal/Images/display/delete-red.png'"
-                        onmouseleave="this.src='../static/Personal/Images/display/delete-black.png'"
-                        onclick="JavaScript:delete_checks(this.id.split('-')[1])" style="cursor: pointer;">
-                </div>
-                <hr>
-                <ul class="list-group" id="publisher-list">
-                    {% for publisher in library['publisher'] %}
+{% block code %}
+<script>
+    const messages = {
+        author: "Add the name of an author",
+        category: "Add a book category",
+        language: "Add a book language",
+        publisher: "Add a book publisher"
+    }
 
-                    <li class="list-group-item" id="{{publisher}}-block">
-                        <input class="form-check-input me-1" type="checkbox" value="{{publisher}}" id="{{publisher}}"
-                            name="publisher" onclick="JavaScript:delete_toggle()">
-                        <label class="form-check-label stretched-link" for="{{publisher}}">{{publisher}}</label>
-                    </li>
-                    {% endfor %}
-                    <li class="list-group-item btn btn-secondary" style="text-align: center;" id="publisher"
-                        onclick="JavaScript:add_message(this.id)" data-bs-toggle="modal" data-bs-target="#askModal">
-                        <label class="form-check-label stretched-link" style="cursor: pointer;">+ Add Publisher</label>
-                    </li>
-                </ul><br><br>
-                <span class="h4">Categories</span>
-                <div class="container-fluid" style="text-align: right;" id="del-con-category" hidden>
-                    <img src="../static/Personal/Images/display/delete-black.png" width="40px" id="del-category"
-                        onmouseenter="this.src='../static/Personal/Images/display/delete-red.png'"
-                        onmouseleave="this.src='../static/Personal/Images/display/delete-black.png'"
-                        onclick="JavaScript:delete_checks(this.id.split('-')[1])" style="cursor: pointer;">
-                </div>
-                <hr>
-                <ul class="list-group" id="category-list">
-                    {% for category in library['category'] %}
+    var type;
+    function add_message(id) {
+        document.getElementById('modal-header').innerHTML = "<p>" + messages[id] + "</p>";
+        document.getElementById('data').value = "";
+        type = id;
+    }
 
-                    <li class="list-group-item" id="{{category}}-block">
-                        <input class="form-check-input me-1" type="checkbox" value="{{category}}" id="{{category}}"
-                            name="category" onclick="JavaScript:delete_toggle()">
-                        <label class="form-check-label stretched-link" for="{{category}}">{{category}}</label>
-                    </li>
-                    {% endfor %}
-                    <li class="list-group-item btn btn-secondary" style="text-align: center;" id="category"
-                        onclick="JavaScript:add_message(this.id)" data-bs-toggle="modal" data-bs-target="#askModal">
-                        <label class="form-check-label stretched-link" style="cursor: pointer;">+ Add Category</label>
-                    </li>
-                </ul><br><br>
-                <span class="h4">Languages</span>
-                <div class="container-fluid" style="text-align: right;" id="del-con-language" hidden>
-                    <img src="../static/Personal/Images/display/delete-black.png" width="40px" id="del-language"
-                        onmouseenter="this.src='../static/Personal/Images/display/delete-red.png'"
-                        onmouseleave="this.src='../static/Personal/Images/display/delete-black.png'"
-                        onclick="JavaScript:delete_checks(this.id.split('-')[1])" style="cursor: pointer;">
-                </div>
-                <hr>
-                <ul class="list-group" id="language-list">
-                    {% for language in library['language'] %}
+    function add_option() {
+        const elem = document.getElementsByName('hid-' + type)[0];
+        const list = document.getElementById(type + "-list");
+        const data = document.getElementById('data').value.replace(/;/g, '').trim();
+        if (data != "" && !elem.value.includes(data + ';')) {
+            elem.value += data + ';';
+            list.innerHTML = ""
 
-                    <li class="list-group-item" id="{{language}}-block">
-                        <input class="form-check-input me-1" type="checkbox" value="{{language}}" id="{{language}}"
-                            name="language" onclick="JavaScript:delete_toggle()">
-                        <label class="form-check-label stretched-link" for="{{language}}">{{language}}</label>
-                    </li>
-                    {% endfor %}
-                    <li class="list-group-item btn btn-secondary" style="text-align: center;" id="language"
-                        onclick="JavaScript:add_message(this.id)" data-bs-toggle="modal" data-bs-target="#askModal">
-                        <label class="form-check-label stretched-link" style="cursor: pointer;">+ Add Language</label>
-                    </li>
-                </ul><br><br><br>
-                <div class="container-fluid" style="text-align: center;">
-                    <input type="submit" value="Save Changes" class="btn btn-dark">
-                </div>
-            </div>
-        </main>
+            for (let i = 0; i < elem.value.split(';').length - 1; i++) {
+                const x = elem.value.split(';')[i];
 
-        <div class="hidden" hidden>
-            <input type="text" name="hid-author" value="{%for x in library['author'] %}{{x}};{% endfor %}">
-            <input type="text" name="hid-publisher" value="{%for x in library['publisher'] %}{{x}};{% endfor %}">
-            <input type="text" name="hid-category" value="{%for x in library['category'] %}{{x}};{% endfor %}">
-            <input type="text" name="hid-language" value="{%for x in library['language'] %}{{x}};{% endfor %}">
-        </div>
-    </form>
-
-    <script>
-        function toggle() {
-            const bar = document.getElementById('sidebarMenu');
-            const main = document.getElementsByTagName('main')[0];
-            if (bar.style.visibility == "visible") {
-                bar.style.visibility = "hidden";
-                main.className = "container-fluid"
-            }
-            else {
-                bar.style.visibility = "visible";
-                main.className = ""
-            }
-        }
-
-        const messages = {
-            author: "Add the name of an author",
-            category: "Add a book category",
-            language: "Add a book language",
-            publisher: "Add a book publisher"
-        }
-
-        var type;
-        function add_message(id) {
-            document.getElementById('modal-header').innerHTML = "<p>" + messages[id] + "</p>";
-            document.getElementById('data').value = "";
-            type = id;
-        }
-
-        function add_option() {
-            const elem = document.getElementsByName('hid-' + type)[0];
-            const list = document.getElementById(type + "-list");
-            const data = document.getElementById('data').value.replace(/;/g, '').trim();
-            if (data != "" && !elem.value.includes(data + ';')) {
-                elem.value += data + ';';
-                list.innerHTML = ""
-
-                for (let i = 0; i < elem.value.split(';').length - 1; i++) {
-                    const x = elem.value.split(';')[i];
-
-                    list.innerHTML += `<li class="list-group-item" id="` + x + `-block">
+                list.innerHTML += `<li class="list-group-item" id="` + x + `-block">
                     <input class="form-check-input me-1" type="checkbox" value="`+ x + `" id="` + x + `" name= "` + type + `" onclick="JavaScript:delete_toggle()">
                     <label class="form-check-label stretched-link" for="`+ x + `">` + x + `</label>
                     </li>`
+            }
+
+            list.innerHTML += `<li class="list-group-item btn btn-secondary" style="text-align: center;" id="` + type + `"
+            onclick="JavaScript:add_message(this.id)" data-bs-toggle="modal" data-bs-target="#askModal">
+            <label class="form-check-label stretched-link" style="cursor: pointer;">+ Add `+ type.charAt(0).toUpperCase() + type.slice(1) + `</label>
+            </li>`
+        }
+        delete_toggle()
+    }
+
+    function delete_toggle() {
+        for (x in messages) {
+            const name_list = document.getElementsByName(x);
+            for (let i = 0; i < name_list.length; i++) {
+                const checkbox = name_list[i];
+                if (checkbox.checked) {
+                    document.getElementById("del-con-" + x).hidden = false;
+                    break;
                 }
-
-                list.innerHTML += `<li class="list-group-item btn btn-secondary" style="text-align: center;" id="` + type + `"
-                    onclick="JavaScript:add_message(this.id)" data-bs-toggle="modal" data-bs-target="#askModal">
-                    <label class="form-check-label stretched-link" style="cursor: pointer;">+ Add `+ type.charAt(0).toUpperCase() + type.slice(1) + `</label>
-                    </li>`
-            }
-            delete_toggle()
-        }
-
-        function delete_toggle() {
-            for (x in messages) {
-                const name_list = document.getElementsByName(x);
-                for (let i = 0; i < name_list.length; i++) {
-                    const checkbox = name_list[i];
-                    if (checkbox.checked) {
-                        document.getElementById("del-con-" + x).hidden = false;
-                        break;
-                    }
-                    else {
-                        document.getElementById("del-con-" + x).hidden = true;
-                    }
+                else {
+                    document.getElementById("del-con-" + x).hidden = true;
                 }
             }
         }
+    }
 
-        function delete_checks(check_type) {
-            const check_list = document.getElementsByName(check_type);
-            const hid_inp = document.getElementsByName("hid-" + check_type)[0];
-            var init_length = check_list.length;
-            for (let i = 0; i < init_length; i++) {
-                try {
-                    const element = check_list[i];
-                    if (element.checked) {
-                        hid_inp.value = hid_inp.value.replace(element.value + ';', "");
-                        document.getElementById(element.value + '-block').remove();
-                        i--;
-                    }
-                } catch (error) { }
-            }
-            delete_toggle();
+    function delete_checks(check_type) {
+        const check_list = document.getElementsByName(check_type);
+        const hid_inp = document.getElementsByName("hid-" + check_type)[0];
+        var init_length = check_list.length;
+        for (let i = 0; i < init_length; i++) {
+            try {
+                const element = check_list[i];
+                if (element.checked) {
+                    hid_inp.value = hid_inp.value.replace(element.value + ';', "");
+                    document.getElementById(element.value + '-block').remove();
+                    i--;
+                }
+            } catch (error) { }
         }
-
-    </script>
-    <script src="../static/Bootstrap/code.js"></script>
-    <script src="../static/Personal/JS/dash.js"></script>
-    <script src="../static/Personal/JS/load.js"></script>
-</body>
-
-</html>
-
-
-<!-- working of the ADD function in modal and introduction of hidden inputs to store the lists -->
+        delete_toggle();
+    }
+</script>
+{% endblock %}

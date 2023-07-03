@@ -1,31 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends 'base_layout.html' %}
+{% block title %}
+Help
+{% endblock %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="../static/Personal/Images/display/logo.png">
-    <link rel="stylesheet" href="../static/Bootstrap/style.css">
-    <link rel="stylesheet" href="../static/Personal/CSS/feeds.css">
-    <title>Shelfmate: Help</title>
-    <link rel="stylesheet" href="../static/Personal/CSS/loading.css">
-</head>
-
-<body>
-    <div id="loading" class="show"></div>
-
-    <div class="navbar-feeds"></div>
-
-    <div class="container">
-        <h2>Help</h2>
-    </div>
-
-    <div class="footer-feeds"></div>
-
-    <script src="../static/Bootstrap/code.js"></script>
-    <script src="../static/Personal/JS/feeds.js"></script>
-    <script src="../static/Personal/JS/load.js"></script>
-</body>
-
-</html>
+{% block body %}
+<div class="container">
+    <h2>Help</h2>
+</div>
+{% endblock %}
