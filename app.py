@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timedelta
 import password_hasher as ph
 import re
+import json
 from isbnlib import meta
 from isbnlib.registry import bibformatters
 from urllib.request import urlopen
@@ -10,10 +11,8 @@ from urllib.request import urlopen
 app = Flask(__name__)
 app.secret_key = "secret_key"
 hasher = ph.PasswordHasher()
-
 app.config['SQLALCHEMY_DATABASE_URI'] = "mysql://sql10618972:fBNE8Pwvag@sql10.freesqldatabase.com/sql10618972"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
 db = SQLAlchemy(app)
 
 
@@ -105,7 +104,7 @@ class AidedFuncs():
         for i in range(len(list(main_data))):
             member = main_data[i]
             data.append({'name': member.name, 'phone': member.phone, 'email': member.email,
-                        'address': member.address, 'username': member.username, 'avatar': member.avatar})
+                        'address': member.address, 'username': member.username, 'avatar': member.avatar, 'id': member.id})
 
         return data
 
@@ -284,7 +283,7 @@ def logout():
 
 
 @app.route('/dashboard/<task>', methods=['GET', 'POST'])
-def add_resource(task):
+def do_task(task):
     logged = request.cookies.get('logged_info')
     if logged != '1':
         return redirect('/')
@@ -334,8 +333,8 @@ def add_resource(task):
             deleted.remove('')
             deleted = list(map(int, deleted))
             for i in range(len(resources)):
-                data = ResourcesLibrary.query.filter_by(user_id=user['id']).filter_by(
-                    isbn=request.form[f'{i}-isbn']).first()
+                data = ResourcesLibrary.query.filter_by(
+                    user_id=user['id'], isbn=request.form[f'{i}-isbn']).first()
                 if i in deleted:
                     db.session.delete(data)
                 else:
@@ -403,7 +402,6 @@ def add_resource(task):
             return redirect('/dashboard/minor-settings')
 
     elif task == "add-member":
-
         if request.method == 'POST':
             name = request.form['name-member']
             username = request.form['username-member']
@@ -423,7 +421,34 @@ def add_resource(task):
             db.session.commit()
             return redirect('/dashboard/all-member')
 
-    return render_template(task+'.html', user=user, library=library, library_offline=library_offline, resources=resources, members=members, option_countries= aids.countries)
+    elif task == "all-member":
+        if request.method == "POST":
+            deleted = request.form['deleted'].split(';')[:-1]
+
+            for i in range(len(members)):
+                data = MembersLibrary.query.filter_by(
+                    username=members[i]["username"], user_id=user['id']).first()
+                if members[i]["username"] in deleted:
+                    db.session.delete(data)
+
+                try:
+                    edited = json.loads(request.form['edited'][:-2]+"}")
+                except:
+                    pass
+                else:
+                    if members[i]["username"] in edited:
+                        mem = members[i]["username"]
+                        data.name = edited[mem][0]
+                        data.email = edited[mem][1]
+                        data.phone = edited[mem][2]
+                        data.address = edited[mem][3]
+                        data.avatar = edited[mem][4]
+                        db.session.add(data)
+
+            db.session.commit()
+            return redirect("/dashboard/all-member")
+
+    return render_template(task+'.html', user=user, library=library, library_offline=library_offline, resources=resources, members=members, option_countries=aids.countries)
 
 
 def isbn_decoder():
@@ -475,4 +500,4 @@ if __name__ == '__main__':
     app.run(debug=True, port=9932)
 
 
-# A very important thing - error messages should be shown (right now only prints are made)
+# A very important thing - error messages should be shown (right now only prints are made) yup

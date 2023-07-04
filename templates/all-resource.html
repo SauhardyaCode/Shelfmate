@@ -16,10 +16,6 @@
         width: 20em;
     }
 
-    /* .form-add {
-            src: format();
-        } */
-
     @media (min-width: 991.98px) {
         .card-personal {
             width: 40em;
@@ -45,6 +41,11 @@
 {% endblock %}
 
 {% block main_block %}
+{% if resources|length==0 %}
+<p class="h1" style="color: rgb(31, 1, 61);">No Resources !</p><br><br>
+<a href="/dashboard/add-resource" onclick="JavaScript:show_loader()" class="btn btn-success"
+    style="width: 100%; font-size: 1.3em;">+ Add Resources</a>
+{% else %}
 <div class="container pt-4" id="main-block-sub"
     style="background-color:whitesmoke; padding: 5%; width: 95%; text-align: right;">
     <p class="h4" style="text-align: left;">Your Resources</p>
@@ -68,22 +69,26 @@
                                             <li class="list-group-item"><span class="list-tag">ISBN</span> -
                                                 {{resources[i]['isbn']}}</li>
                                             <li class="list-group-item"><span class="list-tag">Authors</span> -
-                                                <span class="{{i}}-data">{{resources[i]['author'].replace(';',', ')[:-2]}}</span>
+                                                <span class="{{i}}-data">{{resources[i]['author'].replace(';',',
+                                                    ')[:-2]}}</span>
                                                 <input class="form-add" type="text" name="{{i}}-author"
                                                     value="{{resources[i]['author'].replace(';',', ')[:-2]}}" hidden>
                                             </li>
                                             <li class="list-group-item"><span class="list-tag">Publisher</span> -
-                                                <span class="{{i}}-data">{{resources[i]['publisher'].replace(';',', ')[:-2]}}</span>
+                                                <span class="{{i}}-data">{{resources[i]['publisher'].replace(';',',
+                                                    ')[:-2]}}</span>
                                                 <input class="form-add" type="text" name="{{i}}-publisher"
                                                     value="{{resources[i]['publisher'].replace(';',', ')[:-2]}}" hidden>
                                             </li>
                                             <li class="list-group-item"><span class="list-tag">Category</span> -
-                                                <span class="{{i}}-data">{{resources[i]['category'].replace(';',', ')[:-2]}}</span>
+                                                <span class="{{i}}-data">{{resources[i]['category'].replace(';',',
+                                                    ')[:-2]}}</span>
                                                 <input class="form-add" type="text" name="{{i}}-category"
                                                     value="{{resources[i]['category'].replace(';',', ')[:-2]}}" hidden>
                                             </li>
                                             <li class="list-group-item"><span class="list-tag">Language</span> -
-                                                <span class="{{i}}-data">{{resources[i]['language'].replace(';',', ')[:-2]}}</span>
+                                                <span class="{{i}}-data">{{resources[i]['language'].replace(';',',
+                                                    ')[:-2]}}</span>
                                                 <input class="form-add" type="text" name="{{i}}-language"
                                                     value="{{resources[i]['language'].replace(';',', ')[:-2]}}" hidden>
                                             </li>
@@ -121,6 +126,7 @@
         <input type="text" id="deleted" name="deleted" hidden>
     </form>
 </div>
+{% endif %}
 {% endblock %}
 
 {% block code %}

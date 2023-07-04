@@ -13,18 +13,22 @@ window.addEventListener('load', () => {
     }, 500);
 });
 
-const all_forms = document.getElementsByTagName('form')
-all_forms[all_forms.length - 1].addEventListener('submit', () => {
+function show_loader() {
     let main = document.getElementsByTagName('main')[0]
     setTimeout(() => {
         try {
             main.innerHTML += `<div class="show" id="loading"><div id="loading-content">
-                <div class="loader"></div>
-                </div></div>`
+                    <div class="loader"></div>
+                    </div></div>`
         }
         catch (e) { }
-    }, 1000);
-})
+    }, 500);
+}
+
+const all_forms = document.getElementsByTagName('form')
+for (i in all_forms) {
+    all_forms[i].addEventListener('submit', show_loader)
+}
 
 window.addEventListener('unload', () => {
     if (window.opener && window.opener != window) {
