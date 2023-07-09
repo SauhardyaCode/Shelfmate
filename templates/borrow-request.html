@@ -1,5 +1,151 @@
 {% extends 'base_account.html' %}
+{% block style %}
+<style>
+    #main-block {
+        background-color: whitesmoke;
+        padding: 5%;
+        width: 95%;
+    }
+</style>
+{% endblock %}
 
 {% block main_block %}
-hello
+<p class="h4">Borrow Resource</p>
+<hr>
+<form class="container" method="post" autocomplete="off">
+    <div class="form-group row">
+        <label class="col-sm-2 col-form-label form-head">Member<span style="color: red;">&nbsp;*</span></label>
+        <div class="col-sm-10">
+            <select name="member-borrow" class="form-add">
+                <option value="" hidden>-Select-</option>
+                {% for x in members %}
+                <option value="{{x['username']}}">
+                    {{x["id"]}} - {{x["name"]}}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+    </div><br>
+    <div class="form-group row">
+        <label class="col-sm-2 col-form-label form-head">ISBN<span style="color: red;">&nbsp;*</span></label>
+        <div class="col-sm-10">
+            <select name="isbn-borrow" class="form-add" onchange="Javascript:get_book(this.value)">
+                <option value="" hidden>-Select-</option>
+                {% for i in range(resources|length) %}
+                <option value="{{resources[i]['isbn']}};{{resources[i]['edition']}};{{resources[i]['language']}}">
+                    {{resources[i]["isbn"]}}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+    </div><br>
+    <div class="form-group row">
+        <label class="col-sm-2 col-form-label form-head">Title<span style="color: red;">&nbsp;*</span></label>
+        <div class="col-sm-10">
+            <select name="title-borrow" class="form-add" onchange="Javascript:get_book(this.value)">
+                <option value="" hidden>-Select-</option>
+                {% for i in range(resources|length) %}
+                <option value="{{resources[i]['isbn']}};{{resources[i]['edition']}};{{resources[i]['language']}}">
+                    {{resources[i]["title"]}}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+    </div><br>
+    <div class="form-group row">
+        <label class="col-sm-2 col-form-label form-head">Edition</label>
+        <div class="col-sm-10">
+            <input type="text" class="form-add" name="edition-borrow" placeholder="Book Edition" readonly>
+        </div>
+    </div><br>
+    <div class="form-group row">
+        <label class="col-sm-2 col-form-label form-head">Language</label>
+        <div class="col-sm-10">
+            <input type="text" class="form-add" name="language-borrow" placeholder="Book Language" readonly>
+        </div>
+    </div><br>
+    <div class="form-group row">
+        <label class="col-sm-2 col-form-label form-head">From Date<span style="color: red;">&nbsp;*</span></label>
+        <div class="col-sm-10">
+            <input type="date" class="form-add" name="from-borrow" onchange="Javascript:check_date(0, this)" required>
+        </div>
+    </div><br>
+    <div class="form-group row">
+        <label class="col-sm-2 col-form-label form-head">To Date<span style="color: red;">&nbsp;*</span></label>
+        <div class="col-sm-10">
+            <input type="date" class="form-add" name="to-borrow" onchange="Javascript:check_date(1, this)" required>
+        </div>
+    </div><br>
+    <div class="form-group row">
+        <label class="col-sm-2 col-form-label form-head">No Of Days</label>
+        <div class="col-sm-10">
+            <input type="number" class="form-add" name="days-borrow" readonly>
+        </div>
+    </div><br>
+    <div class="form-group row" style="text-align: center; margin-left: 5%;">
+        <div class="col-sm-10">
+            <input type="submit" class="btn btn-primary">&nbsp;&nbsp;&nbsp;
+            <input type="reset" class="btn btn-secondary"></input>
+        </div>
+    </div>
+    <input type="text" name="real-isbn" hidden required>
+</form>
+{% endblock %}
+
+{% block code %}
+<script>
+    function get_book(data) {
+        document.getElementsByName("isbn-borrow")[0].value = data;
+        document.getElementsByName("title-borrow")[0].value = data;
+        document.getElementsByName("edition-borrow")[0].value = data.split(';')[1];
+        document.getElementsByName("language-borrow")[0].value = data.split(';')[2];
+        document.getElementsByName("real-isbn")[0].value = data.split(';')[0];
+    }
+
+    const days = document.getElementsByName("days-borrow")[0]
+    function check_date(what, date) {
+        if (!what) {
+            var to = document.getElementsByName("to-borrow")[0].value;
+            const today = new Date();
+            var from = new Date(date.value);
+            if (from < today) {
+                alert("Give a valid 'Future' date!");
+                date.value = "";
+                days.value = "";
+            }
+            else {
+                if (to) {
+                    if (from > to) {
+                        alert("Give a valid 'To' date according to 'From' date!");
+                        document.getElementsByName("to-borrow")[0].value = "";
+                        days.value = "";
+                    }
+                    else {
+                        days.value = ((to - from) / (24 * 60 * 60 * 1000)) + 1;
+                    }
+                }
+            }
+        }
+        else {
+            var from = document.getElementsByName("from-borrow")[0].value;
+            if (from) {
+                from = new Date(from);
+                var to = new Date(date.value);
+                if (to < from) {
+                    alert("Give a valid 'To' date according to 'From' date!");
+                    date.value = "";
+                    days.value = "";
+                }
+                else {
+                    days.value = ((to - from) / (24 * 60 * 60 * 1000)) + 1;
+                }
+            }
+            else {
+                alert("Please enter a 'From' date first!");
+                date.value = "";
+                days.value = "";
+            }
+        }
+    }
+</script>
 {% endblock %}

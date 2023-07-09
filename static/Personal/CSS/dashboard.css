@@ -117,11 +117,16 @@ body {
     font-size: 0.9em;
     padding-top: 1%;
     width: 15em;
+    cursor: text;
 }
 
 .form-add:focus {
     outline: none;
     border-bottom: 2px solid rgb(60, 99, 255);
+}
+
+select.form-add {
+    cursor: pointer;
 }
 
 .long-dash {

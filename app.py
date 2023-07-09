@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, make_response
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 import password_hasher as ph
 import re
 import json
@@ -62,6 +62,16 @@ class MembersLibrary(db.Model):
     user_id = db.Column(db.Integer)
 
 
+class BorrowRequests(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer)
+    isbn = db.Column(db.String(30))
+    member = db.Column(db.String(20))
+    from_date = db.Column(db.String(20))
+    to_date = db.Column(db.String(20))
+    quantity = db.Column(db.Integer)
+
+
 class AidedFuncs():
     def __init__(self):
         self.countries = ['''<option value="Afghanistan">Afghanistan</option>''', '''<option value="Åland Islands">Åland Islands</option>''', '''<option value="Albania">Albania</option>''', '''<option value="Algeria">Algeria</option>''', '''<option value="American Samoa">American Samoa</option>''', '''<option value="Andorra">Andorra</option>''', '''<option value="Angola">Angola</option>''', '''<option value="Anguilla">Anguilla</option>''', '''<option value="Antarctica">Antarctica</option>''', '''<option value="Antigua and Barbuda">Antigua and Barbuda</option>''', '''<option value="Argentina">Argentina</option>''', '''<option value="Armenia">Armenia</option>''', '''<option value="Aruba">Aruba</option>''', '''<option value="Australia">Australia</option>''', '''<option value="Austria">Austria</option>''', '''<option value="Azerbaijan">Azerbaijan</option>''', '''<option value="Bahamas">Bahamas</option>''', '''<option value="Bahrain">Bahrain</option>''', '''<option value="Bangladesh">Bangladesh</option>''', '''<option value="Barbados">Barbados</option>''', '''<option value="Belarus">Belarus</option>''', '''<option value="Belgium">Belgium</option>''', '''<option value="Belize">Belize</option>''', '''<option value="Benin">Benin</option>''', '''<option value="Bermuda">Bermuda</option>''', '''<option value="Bhutan">Bhutan</option>''', '''<option value="Bolivia">Bolivia</option>''', '''<option value="Bosnia and Herzegovina">Bosnia and Herzegovina</option>''', '''<option value="Botswana">Botswana</option>''', '''<option value="Bouvet Island">Bouvet Island</option>''', '''<option value="Brazil">Brazil</option>''', '''<option value="British Indian Ocean Territory">British Indian Ocean Territory</option>''', '''<option value="Brunei Darussalam">Brunei Darussalam</option>''', '''<option value="Bulgaria">Bulgaria</option>''', '''<option value="Burkina Faso">Burkina Faso</option>''', '''<option value="Burundi">Burundi</option>''', '''<option value="Cambodia">Cambodia</option>''', '''<option value="Cameroon">Cameroon</option>''', '''<option value="Canada">Canada</option>''', '''<option value="Cape Verde">Cape Verde</option>''', '''<option value="Cayman Islands">Cayman Islands</option>''', '''<option value="Central African Republic">Central African Republic</option>''', '''<option value="Chad">Chad</option>''', '''<option value="Chile">Chile</option>''', '''<option value="China">China</option>''', '''<option value="Christmas Island">Christmas Island</option>''', '''<option value="Cocos (Keeling) Islands">Cocos (Keeling) Islands</option>''', '''<option value="Colombia">Colombia</option>''', '''<option value="Comoros">Comoros</option>''', '''<option value="Congo">Congo</option>''', '''<option value="Congo, The Democratic Republic of The">Congo, The Democratic Republic of The</option>''', '''<option value="Cook Islands">Cook Islands</option>''', '''<option value="Costa Rica">Costa Rica</option>''', '''<option value="Cote D'ivoire">Cote D'ivoire</option>''', '''<option value="Croatia">Croatia</option>''', '''<option value="Cuba">Cuba</option>''', '''<option value="Cyprus">Cyprus</option>''', '''<option value="Czech Republic">Czech Republic</option>''', '''<option value="Denmark">Denmark</option>''', '''<option value="Djibouti">Djibouti</option>''', '''<option value="Dominica">Dominica</option>''', '''<option value="Dominican Republic">Dominican Republic</option>''', '''<option value="Ecuador">Ecuador</option>''', '''<option value="Egypt">Egypt</option>''', '''<option value="El Salvador">El Salvador</option>''', '''<option value="Equatorial Guinea">Equatorial Guinea</option>''', '''<option value="Eritrea">Eritrea</option>''', '''<option value="Estonia">Estonia</option>''', '''<option value="Ethiopia">Ethiopia</option>''', '''<option value="Falkland Islands (Malvinas)">Falkland Islands (Malvinas)</option>''', '''<option value="Faroe Islands">Faroe Islands</option>''', '''<option value="Fiji">Fiji</option>''', '''<option value="Finland">Finland</option>''', '''<option value="France">France</option>''', '''<option value="French Guiana">French Guiana</option>''', '''<option value="French Polynesia">French Polynesia</option>''', '''<option value="French Southern Territories">French Southern Territories</option>''', '''<option value="Gabon">Gabon</option>''', '''<option value="Gambia">Gambia</option>''', '''<option value="Georgia">Georgia</option>''', '''<option value="Germany">Germany</option>''', '''<option value="Ghana">Ghana</option>''', '''<option value="Gibraltar">Gibraltar</option>''', '''<option value="Greece">Greece</option>''', '''<option value="Greenland">Greenland</option>''', '''<option value="Grenada">Grenada</option>''', '''<option value="Guadeloupe">Guadeloupe</option>''', '''<option value="Guam">Guam</option>''', '''<option value="Guatemala">Guatemala</option>''', '''<option value="Guernsey">Guernsey</option>''', '''<option value="Guinea">Guinea</option>''', '''<option value="Guinea-bissau">Guinea-bissau</option>''', '''<option value="Guyana">Guyana</option>''', '''<option value="Haiti">Haiti</option>''', '''<option value="Heard Island and Mcdonald Islands">Heard Island and Mcdonald Islands</option>''', '''<option value="Holy See (Vatican City State)">Holy See (Vatican City State)</option>''', '''<option value="Honduras">Honduras</option>''', '''<option value="Hong Kong">Hong Kong</option>''', '''<option value="Hungary">Hungary</option>''', '''<option value="Iceland">Iceland</option>''', '''<option value="India">India</option>''', '''<option value="Indonesia">Indonesia</option>''', '''<option value="Iran, Islamic Republic of">Iran, Islamic Republic of</option>''', '''<option value="Iraq">Iraq</option>''', '''<option value="Ireland">Ireland</option>''', '''<option value="Isle of Man">Isle of Man</option>''', '''<option value="Israel">Israel</option>''', '''<option value="Italy">Italy</option>''', '''<option value="Jamaica">Jamaica</option>''', '''<option value="Japan">Japan</option>''', '''<option value="Jersey">Jersey</option>''', '''<option value="Jordan">Jordan</option>''', '''<option value="Kazakhstan">Kazakhstan</option>''', '''<option value="Kenya">Kenya</option>''', '''<option value="Kiribati">Kiribati</option>''', '''<option value="Korea, Democratic People's Republic of">Korea, Democratic People's Republic of</option>''', '''<option value="Korea, Republic of">Korea, Republic of</option>''', '''<option value="Kuwait">Kuwait</option>''', '''<option value="Kyrgyzstan">Kyrgyzstan</option>''', '''<option value="Lao People's Democratic Republic">Lao People's Democratic Republic</option>''', '''<option value="Latvia">Latvia</option>''', '''<option value="Lebanon">Lebanon</option>''', '''<option value="Lesotho">Lesotho</option>''', '''<option value="Liberia">Liberia</option>''', '''<option value="Libyan Arab Jamahiriya">Libyan Arab Jamahiriya</option>''', '''<option value="Liechtenstein">Liechtenstein</option>''', '''<option value="Lithuania">Lithuania</option>''', '''<option value="Luxembourg">Luxembourg</option>''', '''<option value="Macao">Macao</option>''', '''<option value="Macedonia, The Former Yugoslav Republic of">Macedonia, The Former Yugoslav Republic of
@@ -105,6 +115,18 @@ class AidedFuncs():
             member = main_data[i]
             data.append({'name': member.name, 'phone': member.phone, 'email': member.email,
                         'address': member.address, 'username': member.username, 'avatar': member.avatar, 'id': member.id})
+
+        return data
+
+    def get_borrows(self):
+        db.session.commit()
+        my_id = self.get_user()[0]['id']
+        main_data = BorrowRequests.query.filter_by(user_id=my_id)
+        data = []
+        for i in range(len(list(main_data))):
+            borrowed = main_data[i]
+            data.append({'isbn': borrowed.isbn, 'member': borrowed.member, 'from_date': borrowed.from_date,
+                        'to_date': borrowed.to_date, 'quantity': borrowed.quantity, 'id': borrowed.id, 'user_id': borrowed.user_id})
 
         return data
 
@@ -271,7 +293,6 @@ def settings():
                     db.session.commit()
                     resp.set_cookie('logged_user', data.user_hash, expires=datetime.utcnow(
                     )+timedelta(weeks=200), path="/")
-                    # user hashes for other datas also need to be added here..
                     return resp
 
     return render_template('settings.html', user=user)
@@ -291,15 +312,15 @@ def do_task(task):
         user, library, library_offline = aids.get_user()
         resources = aids.get_resources()
         members = aids.get_members()
+        borrowed = aids.get_borrows()
         if user == None:
             return render_template('cookie_mismatch.html')
 
     if task == "add-resource":
-
         if request.method == 'POST':
             isbn = request.form['isbn']
             title = request.cookies.get('title')
-            resp = make_response(redirect('/dashboard/all-resource'))
+            resp = make_response(redirect('/dashboard/add-resource'))
             resp.set_cookie(
                 'title', '', expires='Thu, 01 Jan 1970 00:00:00 UTC')
             edition = request.form['edition']
@@ -327,7 +348,6 @@ def do_task(task):
             return resp
 
     elif task == "all-resource":
-
         if request.method == 'POST':
             deleted = request.form['deleted'].split(';')
             deleted.remove('')
@@ -354,7 +374,6 @@ def do_task(task):
             return redirect('/dashboard/all-resource')
 
     elif task == "library":
-
         if request.method == 'POST':
             name = request.form['name-lib'].replace(';', '')
             email = request.form['email-lib'].replace(';', '')
@@ -385,7 +404,6 @@ def do_task(task):
             return redirect('/dashboard/library')
 
     elif task == "minor-settings":
-
         if request.method == 'POST':
             author = request.form['hid-author']
             publisher = request.form['hid-publisher']
@@ -446,9 +464,38 @@ def do_task(task):
                         db.session.add(data)
 
             db.session.commit()
-            return redirect("/dashboard/all-member")
+            return redirect("/dashboard/add-member")
 
-    return render_template(task+'.html', user=user, library=library, library_offline=library_offline, resources=resources, members=members, option_countries=aids.countries)
+    elif task == "borrow-request":
+        if request.method == "POST":
+            member = request.form['member-borrow']
+            isbn = request.form['real-isbn']
+            from_date = request.form['from-borrow']
+            to_date = request.form['to-borrow']
+            quantity = 1
+
+            if len(borrowed):
+                for i in range(len(borrowed)):
+                    if isbn == borrowed[i]['isbn'] and member == borrowed[i]['member']:
+                        data = BorrowRequests.query.filter_by(
+                            user_id=user['id'], member=member, isbn=isbn).first()
+                        data.quantity += 1
+                        if datetime.strptime(from_date, '%Y-%m-%d').date() > date.today():
+                            data.from_date = from_date
+                        data.to_date = to_date
+                        break
+                    elif i == len(borrowed)-1:
+                        data = BorrowRequests(
+                            user_id=user['id'], isbn=isbn, from_date=from_date, to_date=to_date, member=member, quantity=quantity)
+            else:
+                data = BorrowRequests(
+                    user_id=user['id'], isbn=isbn, from_date=from_date, to_date=to_date, member=member, quantity=quantity)
+
+            db.session.add(data)
+            db.session.commit()
+            return redirect("/dashboard/borrow-request")
+
+    return render_template(task+'.html', user=user, library=library, library_offline=library_offline, resources=resources, members=members, borrowed=borrowed, option_countries=aids.countries)
 
 
 def isbn_decoder():
