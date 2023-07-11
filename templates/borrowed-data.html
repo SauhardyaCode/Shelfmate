@@ -1,5 +1,141 @@
 {% extends 'base_account.html' %}
+{% block style %}
+<style>
+    .sub-div {
+        padding-top: 1%;
+        border: 1px dashed blueviolet;
+        text-align: left;
+    }
+
+    .sub-div p.h5 {
+        color: rgb(68, 102, 102);
+    }
+
+    th {
+        color: rgb(81, 94, 108);
+    }
+
+    td,
+    th {
+        border-right: 1px solid rgb(223, 223, 223);
+        white-space: nowrap;
+    }
+</style>
+{% endblock %}
 
 {% block main_block %}
-hello
+<div class="container pt-4" id="main-block-sub"
+    style="background-color:whitesmoke; padding: 5%; width: 95%; text-align: right;">
+    <p class="h4" style="text-align: left;">Borrowed Resources</p>
+    <form method="post">
+        <button class="btn btn-secondary" type="submit">Save Changes</button>
+        <hr>
+        <div id="note">(Note: If you don't click on Save Changes, all the edits will be gone)</div>
+        <div id="yet-to-approve" class="sub-div container">
+            <p class="h5">Requests to Approve</p>
+            <hr>
+            <div id="delete" hidden><button class="btn btn-secondary" onclick="JavaScript:delete_data()">Delete</button>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th scope="col"><input type="checkbox" name="all" id="all"
+                                    onclick="JavaScript:check_all(this.checked)"></th>
+                            <th scope="col">Member</th>
+                            <th scope="col">Item</th>
+                            <th scope="col">Quantity</th>
+                            <th scope="col">From Date</th>
+                            <th scope="col">To Date</th>
+                            <th scope="col">Extended</th>
+                            <th scope="col">Days</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Approve</th>
+                            <th scope="col">Reject</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for x in borrowed %}
+                        {% if x['status'] == "pending" %}
+                        <tr>
+                            <td><input type="checkbox" name="{{x['id']}}" id="{{x['id']}}" class="checks"
+                                    onclick="JavaScript:toggle_delete()"></td>
+                            <td>{{x['member_name'].split()[0]}} <span
+                                    style="font-size: 0.7em; color: rgb(103, 103, 103);">({{x['member']}})</span></td>
+                            <td>{{x['item']}}</td>
+                            <td>{{x['quantity']}}</td>
+                            <td>{{x['from_date']}}</td>
+                            <td>{{x['to_date']}}</td>
+                            <td>{{x['renew']}}</td>
+                            <td>{{x['days']}}</td>
+                            <td>{{x['status']}}</td>
+                            <td><button type="button" class="btn btn-outline-success">Approve</button></td>
+                            <td><button type="button" class="btn btn-outline-danger">Reject</button></td>
+                            <div class="data-column" hidden>{{x['from_date']}}</div>
+                        </tr>
+                        {% endif %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div><br>
+        <div id="approved" class="sub-div container">
+            <p class="h5">Resources still Borrowed</p>
+            <hr>
+            {% for x in borrowed %}
+            {% if x['status'] == "approved" %}
+            {{x}}<br>
+            {% endif %}
+            {% endfor %}
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block code %}
+<script>
+    var all_checks = document.getElementsByClassName("checks");
+    var all_data = document.getElementsByClassName("data-column");
+
+
+    function check_all(check) {
+        for (let i = 0; i < all_checks.length; i++) {
+            all_checks[i].checked = check;
+        };
+        toggle_delete();
+    };
+
+    function toggle_delete() {
+        document.getElementById("delete").hidden = true;
+        for (let i = 0; i < all_checks.length; i++) {
+            if (all_checks[i].checked) {
+                document.getElementById("delete").hidden = false;
+                break;
+            };
+        };
+    };
+
+    function delete_data() {
+        if (confirm("Do you want to delete the selected data?")) {
+            for (let i = 0; i < all_checks.length; i++) {
+                if (all_checks[i].checked) {
+                    all_data[i].remove();
+                };
+            };
+        };
+    };
+    function disable_approve() {
+        for (let i = 0; i < all_data.length; i++) {
+            var from = new Date(all_data[i].innerHTML);
+            var today = new Date();
+            from.setHours(0); from.setMinutes(0); from.setSeconds(0); today.setHours(0); today.setMinutes(0); today.setSeconds(0);
+            if (from > today) {
+                var elem = document.getElementsByClassName("btn-outline-success")[i];
+                elem.onclick = "";
+                elem.classList.add("disabled");
+            };
+        };
+    }
+    setInterval(disable_approve(), 10000);
+</script>
 {% endblock %}

@@ -70,6 +70,11 @@ class BorrowRequests(db.Model):
     from_date = db.Column(db.String(20))
     to_date = db.Column(db.String(20))
     quantity = db.Column(db.Integer)
+    status = db.Column(db.String(10))
+    member_name = db.Column(db.String(100))
+    item = db.Column(db.String(100))
+    days = db.Column(db.Integer)
+    renew_date = db.Column(db.String(10))
 
 
 class AidedFuncs():
@@ -102,7 +107,7 @@ class AidedFuncs():
         for i in range(len(list(main_data))):
             resource = main_data[i]
             data.append({'isbn': resource.isbn, 'title': resource.title, 'edition': resource.edition, 'author': resource.author, 'category': resource.category,
-                        'publisher': resource.publisher, 'language': resource.language, 'quantity': resource.quantity, 'book_cover': resource.book_cover})
+                        'publisher': resource.publisher, 'language': resource.language, 'quantity': resource.quantity, 'book_cover': resource.book_cover, 'id': resource.id})
 
         return data
 
@@ -125,8 +130,8 @@ class AidedFuncs():
         data = []
         for i in range(len(list(main_data))):
             borrowed = main_data[i]
-            data.append({'isbn': borrowed.isbn, 'member': borrowed.member, 'from_date': borrowed.from_date,
-                        'to_date': borrowed.to_date, 'quantity': borrowed.quantity, 'id': borrowed.id, 'user_id': borrowed.user_id})
+            data.append({'isbn': borrowed.isbn, 'member': borrowed.member, 'from_date': borrowed.from_date, 'to_date': borrowed.to_date, 'quantity': borrowed.quantity, 'id': borrowed.id,
+                        'user_id': borrowed.user_id, 'status': borrowed.status, 'member_name': borrowed.member_name, 'item': borrowed.item, 'days': borrowed.days, 'renew': borrowed.renew_date})
 
         return data
 
@@ -469,10 +474,14 @@ def do_task(task):
     elif task == "borrow-request":
         if request.method == "POST":
             member = request.form['member-borrow']
-            isbn = request.form['real-isbn']
+            member_name = MembersLibrary.query.filter_by(
+                username=member).first().name
+            item = ResourcesLibrary.query.filter_by(isbn=isbn).first().title
+            isbn = (request.form['real-isbn'])
             from_date = request.form['from-borrow']
             to_date = request.form['to-borrow']
             quantity = 1
+            days = request.form['days-borrow']
 
             if len(borrowed):
                 for i in range(len(borrowed)):
@@ -480,16 +489,15 @@ def do_task(task):
                         data = BorrowRequests.query.filter_by(
                             user_id=user['id'], member=member, isbn=isbn).first()
                         data.quantity += 1
-                        if datetime.strptime(from_date, '%Y-%m-%d').date() > date.today():
-                            data.from_date = from_date
+                        data.from_date = from_date
                         data.to_date = to_date
                         break
                     elif i == len(borrowed)-1:
                         data = BorrowRequests(
-                            user_id=user['id'], isbn=isbn, from_date=from_date, to_date=to_date, member=member, quantity=quantity)
+                            user_id=user['id'], isbn=isbn, from_date=from_date, to_date=to_date, member=member, quantity=quantity, status="pending", member_name=member_name, item=item, days=days)
             else:
                 data = BorrowRequests(
-                    user_id=user['id'], isbn=isbn, from_date=from_date, to_date=to_date, member=member, quantity=quantity)
+                    user_id=user['id'], isbn=isbn, from_date=from_date, to_date=to_date, member=member, quantity=quantity, status="pending", member_name=member_name, item=item, days=days)
 
             db.session.add(data)
             db.session.commit()

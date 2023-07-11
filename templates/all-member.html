@@ -147,21 +147,21 @@
     #show-2 {
         background-color: whitesmoke;
     }
-</style>
+    </style>
 {% endblock %}
 
 {% block main_block %}
 {% if members|length==0 %}
 <p class="h1" style="color: rgb(31, 1, 61);">No Members !</p><br><br>
 <a href="/dashboard/add-member" onclick="JavaScript:show_loader()" class="btn btn-success"
-    style="width: 100%; font-size: 1.3em;">+ Add Members</a>
+style="width: 100%; font-size: 1.3em;">+ Add Members</a>
 {% else %}
 <div class="container pt-4 main-block-inside" id="show-1" style="text-align: right;">
     <p class="h4" style="text-align: left;">Members</p>
     <form method="post" autocomplete="off">
-        <button type="submit" disabled hidden></button>
         <button class="btn btn-secondary" type="submit">Save Changes</button>
         <hr>
+        <div id="note">(Note: If you don't click on Save Changes, all the edits will be gone)</div>
         <div id="all-members-show">
             {% set ns = namespace() %}
             {% set ns.index = 0 %}

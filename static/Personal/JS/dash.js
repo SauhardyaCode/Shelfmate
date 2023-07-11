@@ -45,7 +45,7 @@ const code = `<div class="list-group list-group-flush mx-3 mt-4 container-fluid"
 <a href="/dashboard/borrowed-data" class="list-group-item list-group-item-action py-2 ripple" id="borrowed-data"><i
     class="fas fa-money-bill fa-fw me-3"></i><span><img
         src="../static/Personal/Images/display/bullet.jpg" width="30px">&nbsp;&nbsp;Borrowed
-    Requests</span></a>
+    Resources</span></a>
 <a href="/dashboard/library" class="list-group-item list-group-item-action py-2 ripple" id="library"><i
     class="fas fa-money-bill fa-fw me-3"></i><span><img
         src="../static/Personal/Images/display/bullet.jpg" width="30px">&nbsp;&nbsp;Library

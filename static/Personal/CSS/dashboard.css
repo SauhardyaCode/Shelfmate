@@ -137,6 +137,14 @@ select.form-add {
     width: 24%;
 }
 
-.code-phone{
+.code-phone {
     width: 8em;
+}
+
+#note {
+    font-size: 0.9em;
+    background-color: crimson;
+    color: white;
+    margin-bottom: 1%;
+    text-align: center;
 }

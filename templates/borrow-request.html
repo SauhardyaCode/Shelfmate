@@ -106,7 +106,10 @@
     function check_date(what, date) {
         if (!what) {
             var to = document.getElementsByName("to-borrow")[0].value;
-            const today = new Date();
+            var today = new Date();
+            today.setHours(0);
+            today.setMinutes(0);
+            today.setSeconds(0);
             var from = new Date(date.value);
             if (from < today) {
                 alert("Give a valid 'Future' date!");
