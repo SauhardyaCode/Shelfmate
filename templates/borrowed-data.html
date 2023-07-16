@@ -23,110 +23,203 @@
 </style>
 {% endblock %}
 
+{% block general_body %}
+<div class="modal fade" id="date-extender" tabindex="-1" aria-labelledby="extenderLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form method="POST" class="not-final" action="JavaScript:extend_request()" autocomplete="off">
+                <div class="modal-header">
+                    <label for="date-input" id="modal-header" style="font-weight: 500; font-size: 1.2em;"></label>
+                </div>
+                <input type="text" id="current-extend" hidden>
+                <input type="text" class="form-ontrol" id="date-input" onfocus="JavaScript:undecorate_date(this)"
+                    onblur="JavaScript:decorate_date(this)" placeholder="Extend Till"
+                    style="font-size: 1.2em; outline: none; width: 100%;" onchange="JavaScript:check_renew_date()"
+                    required>
+                <div class="modal-body" style="text-align: center;">
+                    <button type="submit" disabled hidden></button>
+                    <button type="submit" class="btn btn-dark" data-bs-dismiss="modal">Extend</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
 {% block main_block %}
 <div class="container pt-4" id="main-block-sub"
     style="background-color:whitesmoke; padding: 5%; width: 95%; text-align: right;">
     <p class="h4" style="text-align: left;">Borrowed Resources</p>
-    <form method="post">
+    <form method="post" onsubmit="JavaScript:show_loader()">
         <button class="btn btn-secondary" type="submit">Save Changes</button>
-        <hr>
-        <div id="note">(Note: If you don't click on Save Changes, all the edits will be gone)</div>
-        <div id="yet-to-approve" class="sub-div container">
-            <p class="h5">Requests to Approve</p>
-            <hr>
-            <div id="delete" hidden><button class="btn btn-secondary" onclick="JavaScript:delete_data()">Delete</button>
-            </div>
-            <div class="table-responsive">
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th scope="col"><input type="checkbox" name="all" id="all"
-                                    onclick="JavaScript:check_all(this.checked)"></th>
-                            <th scope="col">Member</th>
-                            <th scope="col">Item</th>
-                            <th scope="col">Quantity</th>
-                            <th scope="col">From Date</th>
-                            <th scope="col">To Date</th>
-                            <th scope="col">Extended</th>
-                            <th scope="col">Days</th>
-                            <th scope="col">Status</th>
-                            <th scope="col">Approve</th>
-                            <th scope="col">Reject</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for x in borrowed %}
-                        {% if x['status'] == "pending" %}
-                        <tr>
-                            <td><input type="checkbox" name="{{x['id']}}" id="{{x['id']}}" class="checks"
-                                    onclick="JavaScript:toggle_delete()"></td>
-                            <td>{{x['member_name'].split()[0]}} <span
-                                    style="font-size: 0.7em; color: rgb(103, 103, 103);">({{x['member']}})</span></td>
-                            <td>{{x['item']}}</td>
-                            <td>{{x['quantity']}}</td>
-                            <td>{{x['from_date']}}</td>
-                            <td>{{x['to_date']}}</td>
-                            <td>{{x['renew']}}</td>
-                            <td>{{x['days']}}</td>
-                            <td>{{x['status']}}</td>
-                            <td><button type="button" class="btn btn-outline-success">Approve</button></td>
-                            <td><button type="button" class="btn btn-outline-danger">Reject</button></td>
-                            <div class="data-column" hidden>{{x['from_date']}}</div>
-                        </tr>
-                        {% endif %}
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div><br>
-        <div id="approved" class="sub-div container">
-            <p class="h5">Resources still Borrowed</p>
-            <hr>
-            {% for x in borrowed %}
-            {% if x['status'] == "approved" %}
-            {{x}}<br>
-            {% endif %}
-            {% endfor %}
-        </div>
+        <input type="text" id="approved" name="approved" hidden>
+        <input type="text" id="rejected" name="rejected" hidden>
+        <input type="text" id="deleted" name="deleted" hidden>
+        <input type="text" id="returned" name="returned" hidden>
+        <input type="text" id="extended" name="extended" hidden>
     </form>
+    <hr>
+    <div id="note">(Note: If you don't click on Save Changes, all the edits will be gone)</div>
+    <div id="yet-to-approve" class="sub-div container">
+        <p class="h5">Requests Pending <span style="float: right; color: black; font-size: 0.9em; cursor: pointer;"
+                class="btn-link" onclick="JavaScript:toggle_data_view(this, 'table1')">Hide</span></p>
+        <hr>
+        <div id="delete1" hidden><button type="button" class="btn btn-secondary"
+                onclick="JavaScript:delete_data(1)">Delete</button>
+        </div>
+        <div class="table-responsive" id="table1">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col"><input type="checkbox" name="all" id="all"
+                                onclick="JavaScript:check_all(this.checked, 1)"></th>
+                        <th scope="col">Member</th>
+                        <th scope="col">Item</th>
+                        <th scope="col">Quantity</th>
+                        <th scope="col">From Date</th>
+                        <th scope="col">To Date</th>
+                        <th scope="col">Days</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Approve</th>
+                        <th scope="col">Reject</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for x in borrowed %}
+                    {% if x['status'] == "pending" %}
+                    <tr class="data-column-1" id="{{x['id']}}">
+                        <td><input type="checkbox" name="{{x['id']}}" class="checks1"
+                                onclick="JavaScript:toggle_delete(1)"></td>
+                        <td>{{x['member_name'].split()[0]}} <span
+                                style="font-size: 0.7em; color: rgb(103, 103, 103);">({{x['member']}})</span></td>
+                        <td>{{x['item']}}</td>
+                        <td>{{x['quantity']}}</td>
+                        <td class="all-from-dates">{{x['from_date']}}</td>
+                        <td>{{x['to_date']}}</td>
+                        <td>{{x['days']}}</td>
+                        <td id="stat1-{{x['id']}}">{{x['status']}}</td>
+                        <td><button type="button" class="btn btn-outline-success" id="{{x['id']}}-a"
+                                onclick="JavaScript:approve_request(this)">Approve</button></td>
+                        <td><button type="button" class="btn btn-outline-danger" id="{{x['id']}}-r"
+                                onclick="JavaScript:reject_request(this)">Reject</button></td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div><br>
+    <div id="yet-to-return" class="sub-div container">
+        <p class="h5">Requests Approved <span style="float: right; color: black; font-size: 0.9em; cursor: pointer;"
+                class="btn-link" onclick="JavaScript:toggle_data_view(this, 'table2')">Hide</span></p>
+        <hr>
+        <div id="delete2" hidden><button type="button" class="btn btn-secondary"
+                onclick="JavaScript:delete_data(2)">Delete</button>
+        </div>
+        <div class="table-responsive" id="table2">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col"><input type="checkbox" name="all" id="all"
+                                onclick="JavaScript:check_all(this.checked, 2)"></th>
+                        <th scope="col">Member</th>
+                        <th scope="col">Item</th>
+                        <th scope="col">Quantity</th>
+                        <th scope="col">From Date</th>
+                        <th scope="col">To Date</th>
+                        <th scope="col">Renewed To</th>
+                        <th scope="col">Days</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Return</th>
+                        <th scope="col">Extend</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for x in borrowed %}
+                    {% if x['status'] == "approved" or "LATE" in x['status'] %}
+                    {% if x['status'] == "approved" %}
+                    <tr class="data-column-2" id="{{x['id']}}">
+                        {% else %}
+                    <tr class="data-column-2" id="{{x['id']}}" style="background-color: rgb(247, 163, 163);">
+                        {% endif %}
+                        <td><input type="checkbox" name="{{x['id']}}" class="checks2"
+                                onclick="JavaScript:toggle_delete(2)"></td>
+                        <td>{{x['member_name'].split()[0]}} <span
+                                style="font-size: 0.7em; color: rgb(103, 103, 103);">({{x['member']}})</span></td>
+                        <td>{{x['item']}}</td>
+                        <td>{{x['quantity']}}</td>
+                        <td id="{{x['id']}}-from">{{x['from_date']}}</td>
+                        <td id="{{x['id']}}-to">{{x['to_date']}}</td>
+                        <td id="renew-{{x['id']}}">{{x['renew']}}</td>
+                        <td id="counter-{{x['id']}}">{{x['days']}}</td>
+                        <td id="stat2-{{x['id']}}">{{x['status']}}</td>
+                        <td><button type="button" class="btn btn-outline-success" id="{{x['id']}}-t"
+                                onclick="JavaScript:return_request(this)">Return</button></td>
+                        <td><button type="button" class="btn btn-outline-primary" id="{{x['id']}}-e"
+                                onclick="document.getElementById('current-extend').value=this.id.slice(0, -2)"
+                                data-bs-toggle="modal" data-bs-target="#date-extender">Extend</button></td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div><br>
 </div>
 {% endblock %}
 
 {% block code %}
 <script>
-    var all_checks = document.getElementsByClassName("checks");
-    var all_data = document.getElementsByClassName("data-column");
+    const all_from_dates = document.getElementsByClassName("all-from-dates");
+    const deleted = document.getElementById("deleted")
+    const approved = document.getElementById("approved")
+    const rejected = document.getElementById("rejected")
+    const returned = document.getElementById("returned")
+    const extended = document.getElementById("extended")
+    const extender = document.getElementById("date-input");
 
 
-    function check_all(check) {
+    function check_all(check, place) {
+        const all_checks = document.getElementsByClassName(`checks${place}`);
         for (let i = 0; i < all_checks.length; i++) {
             all_checks[i].checked = check;
         };
-        toggle_delete();
+        toggle_delete(place);
     };
 
-    function toggle_delete() {
-        document.getElementById("delete").hidden = true;
+    function toggle_delete(place) {
+        const all_checks = document.getElementsByClassName(`checks${place}`);
+        document.getElementById(`delete${place}`).hidden = true;
         for (let i = 0; i < all_checks.length; i++) {
             if (all_checks[i].checked) {
-                document.getElementById("delete").hidden = false;
+                document.getElementById(`delete${place}`).hidden = false;
                 break;
             };
         };
     };
 
-    function delete_data() {
+    function delete_data(place) {
+        const all_data = document.getElementsByClassName(`data-column-${place}`);
+        const all_checks = document.getElementsByClassName(`checks${place}`);
         if (confirm("Do you want to delete the selected data?")) {
-            for (let i = 0; i < all_checks.length; i++) {
+            let i = 0;
+            while (i < all_checks.length) {
                 if (all_checks[i].checked) {
+                    let id = all_data[i].id;
+                    deleted.value += `${id};`;
+                    approved.value = approved.value.replace(`${id};`, "");
+                    rejected.value = rejected.value.replace(`${id};`, "");
                     all_data[i].remove();
+                    i--;
                 };
+                i++;
             };
         };
+        toggle_delete(place);
     };
     function disable_approve() {
-        for (let i = 0; i < all_data.length; i++) {
-            var from = new Date(all_data[i].innerHTML);
+        for (let i = 0; i < all_from_dates.length; i++) {
+            var from = new Date(all_from_dates[i].innerHTML);
             var today = new Date();
             from.setHours(0); from.setMinutes(0); from.setSeconds(0); today.setHours(0); today.setMinutes(0); today.setSeconds(0);
             if (from > today) {
@@ -137,5 +230,76 @@
         };
     }
     setInterval(disable_approve(), 10000);
+
+    function approve_request(btn) {
+        btn.innerHTML = "Approved";
+        btn.classList.add("disabled");
+        document.getElementById(`stat1-${btn.id.slice(0, -2)}`).innerHTML = "approved";
+        document.getElementById(`${btn.id.slice(0, -1)}r`).classList.add("disabled");
+        approved.value += `${btn.id.slice(0, -2)};`;
+    }
+
+    function reject_request(btn) {
+        btn.innerHTML = "Rejected";
+        btn.classList.add("disabled");
+        document.getElementById(`stat1-${btn.id.slice(0, -2)}`).innerHTML = "rejected";
+        document.getElementById(`${btn.id.slice(0, -1)}a`).classList.add("disabled");
+        rejected.value += `${btn.id.slice(0, -2)};`;
+    }
+
+    function return_request(btn) {
+        btn.innerHTML = "Returned";
+        btn.classList.add("disabled");
+        document.getElementById(`stat2-${btn.id.slice(0, -2)}`).innerHTML = "returned";
+        document.getElementById(`${btn.id.slice(0, -1)}e`).classList.add("disabled");
+        returned.value += `${btn.id.slice(0, -2)};`;
+    }
+
+    function extend_request() {
+        let id = document.getElementById("current-extend").value;
+        const from_value = document.getElementById(`${id}-from`).innerHTML;
+        const renew_value = undecorate_date(extender, 0);
+        var from = new Date(from_value);
+        var renew = new Date(renew_value);
+        from.setHours(0); from.setMinutes(0); from.setSeconds(0);
+        renew.setHours(0); renew.setMinutes(0); renew.setSeconds(0);
+        if (check_renew_date()) {
+            extender.value = "";
+            if (extended.value.includes(`${id}:`)) {
+                extended.value = extended.value.replace(`${id}:`, ";").replace(";;", ";")
+                extended.value = extended.value.replace(/;.[^:]*;/g, "")
+            }
+            extended.value += `${id}:${renew_value};`;
+            document.getElementById(`renew-${id}`).innerHTML = renew_value;
+            document.getElementById(`counter-${id}`).innerHTML = (renew - from) / (24 * 60 * 60 * 1000) + 1;
+        }
+    }
+
+    function check_renew_date() {
+        let id = document.getElementById("current-extend").value;
+        var renew = new Date(extender.value);
+        var to = new Date(document.getElementById(`${id}-to`).innerHTML)
+        renew.setHours(0); renew.setMinutes(0); renew.setSeconds(0);
+        to.setHours(23); to.setMinutes(59); to.setSeconds(59);
+        if (renew < to) {
+            alert("Give a date after your renting period!");
+            extender.value = "";
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
+
+    function toggle_data_view(type, data) {
+        if (type.innerHTML == "Hide") {
+            document.getElementById(data).hidden = true;
+            type.innerHTML = "Show";
+        }
+        else {
+            document.getElementById(data).hidden = false;
+            type.innerHTML = "Hide";
+        }
+    }
 </script>
 {% endblock %}

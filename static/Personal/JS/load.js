@@ -27,7 +27,9 @@ function show_loader() {
 
 const all_forms = document.getElementsByTagName('form')
 for (i in all_forms) {
-    all_forms[i].addEventListener('submit', show_loader)
+    if (!all_forms[i].classList.includes("not-final")) {
+        all_forms[i].addEventListener('submit', show_loader)
+    }
 }
 
 window.addEventListener('unload', () => {
@@ -35,3 +37,7 @@ window.addEventListener('unload', () => {
         document.getElementById('loading').remove()
     }
 })
+
+if (window.history.replaceState) {
+    window.history.replaceState(null, null, window.location.href);
+}

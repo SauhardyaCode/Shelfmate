@@ -476,8 +476,8 @@ def do_task(task):
             member = request.form['member-borrow']
             member_name = MembersLibrary.query.filter_by(
                 username=member).first().name
+            isbn = request.form['real-isbn']
             item = ResourcesLibrary.query.filter_by(isbn=isbn).first().title
-            isbn = (request.form['real-isbn'])
             from_date = request.form['from-borrow']
             to_date = request.form['to-borrow']
             quantity = 1
@@ -494,14 +494,63 @@ def do_task(task):
                         break
                     elif i == len(borrowed)-1:
                         data = BorrowRequests(
-                            user_id=user['id'], isbn=isbn, from_date=from_date, to_date=to_date, member=member, quantity=quantity, status="pending", member_name=member_name, item=item, days=days)
+                            user_id=user['id'], isbn=isbn, from_date=from_date, to_date=to_date, member=member, quantity=quantity, status="pending", member_name=member_name, item=item, days=days, renew_date="")
             else:
                 data = BorrowRequests(
-                    user_id=user['id'], isbn=isbn, from_date=from_date, to_date=to_date, member=member, quantity=quantity, status="pending", member_name=member_name, item=item, days=days)
+                    user_id=user['id'], isbn=isbn, from_date=from_date, to_date=to_date, member=member, quantity=quantity, status="pending", member_name=member_name, item=item, days=days, renew_date="")
 
             db.session.add(data)
             db.session.commit()
             return redirect("/dashboard/borrow-request")
+
+    elif task == "borrowed-data":
+        for i in range(len(borrowed)):
+            if borrowed[i]['status'] == "approved":
+                sub_date = borrowed[i]['to_date']
+                if borrowed[i]['renew']:
+                    sub_date = borrowed[i]['renew']
+                sub_date = datetime.strptime(sub_date, '%Y-%m-%d').date()
+                today = datetime.today().date()
+                if today>sub_date:
+                    data = BorrowRequests.query.filter_by(id=borrowed[i]['id']).first()
+                    data.status = f"LATE ({(today-sub_date).days})"
+                    db.session.add(data)
+                    db.session.commit()
+                    return redirect("/dashboard/borrowed-data")
+
+        if request.method == "POST":
+            deleted = request.form['deleted'].split(';')[:-1]
+            approved = request.form['approved'].split(';')[:-1]
+            rejected = request.form['rejected'].split(';')[:-1]
+            returned = request.form['returned'].split(';')[:-1]
+            extended = request.form['extended'].split(';')[:-1]
+
+            for x in deleted:
+                data = BorrowRequests.query.filter_by(id=int(x)).first()
+                db.session.delete(data)
+            for x in approved:
+                data = BorrowRequests.query.filter_by(id=int(x)).first()
+                data.status = "approved"
+                db.session.add(data)
+            for x in rejected:
+                data = BorrowRequests.query.filter_by(id=int(x)).first()
+                data.status = "rejected"
+                db.session.add(data)
+                db.session.commit()
+            for x in returned:
+                data = BorrowRequests.query.filter_by(id=int(x)).first()
+                data.status = "returned"
+                db.session.add(data)
+                db.session.commit()
+            for x in extended:
+                the_id, the_date = x.split(":")
+                data = BorrowRequests.query.filter_by(id=int(the_id)).first()
+                data.renew_date = the_date
+                db.session.add(data)
+                db.session.commit()
+            
+            return redirect("/dashboard/borrowed-data")
+
 
     return render_template(task+'.html', user=user, library=library, library_offline=library_offline, resources=resources, members=members, borrowed=borrowed, option_countries=aids.countries)
 

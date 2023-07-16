@@ -92,6 +92,35 @@
                 eval(`{% block toggle_invisible %}{% endblock %}`)
             }
         }
+
+        const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        function decorate_date(input, perm = 1) {
+            if (input.value) {
+                var date = new Date(input.value);
+                var format = `${date.getDate()} ${months[date.getMonth()]}, ${date.getFullYear()}`;
+                if (perm) { input.type = 'text'; }
+            }
+            if (perm) { input.value = format; }
+            return format;
+        }
+
+        function undecorate_date(input, perm = 1) {
+            if (input.value) {
+                var date = input.value.replace(", ", "-").replace(" ", "-").split('-');
+                var month = months.indexOf(date[1]) + 1;
+                var day = Number(date[0]);
+                if (month < 10) {
+                    month = `0${month}`
+                }
+                if (day < 10) {
+                    day = `0${day}`
+                }
+                var format = `${date[2]}-${month}-${day}`;
+                if (perm) { input.value = format; }
+            }
+            if (perm) { input.type = 'date'; }
+            return format;
+        }
     </script>
     <script src="../static/Bootstrap/code.js"></script>
     <script src="../static/Personal/JS/dash.js"></script>
