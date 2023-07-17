@@ -21,15 +21,16 @@ function show_loader() {
                     <div class="loader"></div>
                     </div></div>`
         }
-        catch (e) { }
+        catch { }
     }, 500);
 }
 
 const all_forms = document.getElementsByTagName('form')
 for (i in all_forms) {
-    if (!all_forms[i].classList.includes("not-final")) {
+    try {
         all_forms[i].addEventListener('submit', show_loader)
     }
+    catch { }
 }
 
 window.addEventListener('unload', () => {

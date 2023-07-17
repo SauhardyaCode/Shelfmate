@@ -1,0 +1,218 @@
+{% extends 'base_account.html' %}
+{% block style %}
+<style>
+    .sub-div {
+        padding-top: 1%;
+        border: 1px dashed blueviolet;
+        text-align: left;
+    }
+
+    .data-column-approved {
+        background-color: rgb(201, 180, 200);
+    }
+
+    .data-column-pending {
+        background-color: rgb(230, 229, 213);
+    }
+
+    .data-column-rejected {
+        background-color: rgb(200, 200, 206);
+    }
+
+    .data-column-returned {
+        background-color: rgb(210, 244, 218);
+    }
+
+    .data-column-late {
+        background-color: rgb(241, 188, 188);
+    }
+</style>
+{% endblock %}
+
+{% block main_block %}
+<div class="container pt-4" id="main-block-sub"
+    style="background-color:whitesmoke; padding: 5%; width: 95%; text-align: right;">
+    <p class="h4" style="text-align: left;">Borrowed History</p>
+    <form method="post" onsubmit="JavaScript:show_loader()">
+        <button class="btn btn-secondary" type="submit">Save Changes</button>
+        <input type="text" id="deleted" name="deleted" hidden>
+    </form>
+    <hr>
+    <div id="note">(Note: If you don't click on Save Changes, all the edits will be gone)</div>
+    <div id="yet-to-approve" class="sub-div container">
+        <p class="h5">Full History
+            <span style="float: right; color: black; font-size: 0.9em; cursor: pointer;" class="btn-link">
+                <select name="status" id="status" onchange="JavaScript:toggle_data_view(this)">
+                    <option value="">All</option>
+                    <option value="-pending">Pending</option>
+                    <option value="-approved">Approved</option>
+                    <option value="-rejected">Rejected</option>
+                    <option value="-late">Late</option>
+                    <option value="-returned">Returned</option>
+                </select>
+            </span>
+        </p>
+        <hr>
+        <div id="delete" hidden><button type="button" class="btn btn-secondary"
+                onclick="JavaScript:delete_data()">Delete</button>
+        </div>
+        <div class="table-responsive" id="history">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col"><input type="checkbox" name="all" id="all"
+                                onclick="JavaScript:check_all(this.checked)"></th>
+                        <th scope="col">Member</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Item</th>
+                        <th scope="col">Quantity</th>
+                        <th scope="col">Days</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for x in borrowed %}
+                    {% if x['status'] == "pending" %}
+                    <tr class="data-column-pending" id="{{x['id']}}">
+                        <td><input type="checkbox" name="{{x['id']}}" class="checks-pending"
+                                onclick="JavaScript:toggle_delete()"></td>
+                        {% elif x['status'] == "approved" %}
+                    <tr class="data-column-approved" id="{{x['id']}}">
+                        <td><input type="checkbox" name="{{x['id']}}" class="checks-approved"
+                                onclick="JavaScript:toggle_delete()"></td>
+                        {% elif x['status'] == "rejected" %}
+                    <tr class="data-column-rejected" id="{{x['id']}}">
+                        <td><input type="checkbox" name="{{x['id']}}" class="checks-rejected"
+                                onclick="JavaScript:toggle_delete()"></td>
+                        {% elif "LATE" in x['status'] %}
+                    <tr class="data-column-late" id="{{x['id']}}">
+                        <td><input type="checkbox" name="{{x['id']}}" class="checks-late"
+                                onclick="JavaScript:toggle_delete()"></td>
+                        {% elif x['status'] == "returned" %}
+                    <tr class="data-column-returned" id="{{x['id']}}">
+                        <td><input type="checkbox" name="{{x['id']}}" class="checks-returned"
+                                onclick="JavaScript:toggle_delete()"></td>
+                        {% endif %}
+                        <td>{{x['member_name'].split()[0]}} <span
+                                style="font-size: 0.7em; color: rgb(103, 103, 103);">({{x['member']}})</span></td>
+                        <td>{{x['status']}}</td>
+                        <td>{{x['item']}}</td>
+                        <td>{{x['quantity']}}</td>
+                        <td>{{x['days']}}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div><br>
+</div>
+{% endblock %}
+
+{% block code %}
+<script>
+    function check_all(check) {
+        if (curr_type) {
+            let all_checks = document.getElementsByClassName(`checks${curr_type}`);
+            for (let i = 0; i < all_checks.length; i++) {
+                all_checks[i].checked = check;
+            };
+        }
+        else {
+            for (i in types) {
+                let all_checks = document.getElementsByClassName(`checks${types[i]}`)
+                for (let j = 0; j < all_checks.length; j++) {
+                    all_checks[j].checked = check;
+                };
+            }
+        }
+        toggle_delete();
+    };
+
+    function toggle_delete() {
+        document.getElementById(`delete`).hidden = true;
+        if (curr_type) {
+            let all_checks = document.getElementsByClassName(`checks${curr_type}`);
+            for (let i = 0; i < all_checks.length; i++) {
+                if (all_checks[i].checked) {
+                    document.getElementById(`delete`).hidden = false;
+                    break;
+                };
+            };
+        }
+        else {
+            for (i in types) {
+                let all_checks = document.getElementsByClassName(`checks${types[i]}`)
+                for (let j = 0; j < all_checks.length; j++) {
+                    if (all_checks[j].checked) {
+                        document.getElementById(`delete`).hidden = false;
+                        break;
+                    };
+                };
+            }
+        }
+    };
+
+    const types = ["-pending", "-approved", "-rejected", "-late", "-returned"];
+    var curr_type = "";
+    function toggle_data_view(type) {
+        document.getElementById("all").checked = false;
+        check_all(false);
+        curr_type = type.value;
+        for (i in types) {
+            try {
+                let elem = document.getElementsByClassName(`data-column${types[i]}`);
+                for (j in elem) {
+                    if (curr_type) {
+                        if (types[i] != curr_type) {
+                            elem[j].hidden = true;
+                        }
+                        else {
+                            elem[j].hidden = false;
+                        }
+                    }
+                    else {
+                        elem[j].hidden = false
+                    }
+                }
+            }
+            catch { }
+        }
+    };
+
+    function delete_data() {
+        if (confirm("Do you want to delete the selected data?")) {
+            if (curr_type) {
+                let all_data = document.getElementsByClassName(`data-column${curr_type}`);
+                let all_checks = document.getElementsByClassName(`checks${curr_type}`);
+                let i = 0;
+                while (i < all_checks.length) {
+                    if (all_checks[i].checked) {
+                        let id = all_data[i].id;
+                        deleted.value += `${id};`;
+                        all_data[i].remove();
+                        i--;
+                    };
+                    i++;
+                };
+            }
+            else {
+                for (i in types) {
+                    let all_data = document.getElementsByClassName(`data-column${types[i]}`);
+                    let all_checks = document.getElementsByClassName(`checks${types[i]}`);
+                    let j = 0;
+                    while (j < all_checks.length) {
+                        if (all_checks[j].checked) {
+                            let id = all_data[j].id;
+                            console.log(all_data[i])
+                            deleted.value += `${id};`;
+                            all_data[j].remove();
+                            j--;
+                        };
+                        j++;
+                    };
+                };
+            }
+            toggle_delete();
+        }
+    };
+</script>
+{% endblock %}

@@ -38,10 +38,9 @@ const code = `<div class="list-group list-group-flush mx-3 mt-4 container-fluid"
     class="fas fa-calendar fa-fw me-3"></i><span><img
         src="../static/Personal/Images/display/bullet.jpg" width="30px">&nbsp;&nbsp;All
     Members</span></a>
-<a href="/dashboard/requests-to-borrow" class="list-group-item list-group-item-action py-2 ripple" id="requests-to-borrow"><i
+<a href="/dashboard/borrow-history" class="list-group-item list-group-item-action py-2 ripple" id="borrow-history"><i
     class="fas fa-users fa-fw me-3"></i><span><img
-        src="../static/Personal/Images/display/bullet.jpg" width="30px">&nbsp;&nbsp;Requests To
-    Borrow</span></a>
+        src="../static/Personal/Images/display/bullet.jpg" width="30px">&nbsp;&nbsp;Borrow History</span></a>
 <a href="/dashboard/borrowed-data" class="list-group-item list-group-item-action py-2 ripple" id="borrowed-data"><i
     class="fas fa-money-bill fa-fw me-3"></i><span><img
         src="../static/Personal/Images/display/bullet.jpg" width="30px">&nbsp;&nbsp;Borrowed

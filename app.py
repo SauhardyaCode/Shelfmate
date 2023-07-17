@@ -511,8 +511,9 @@ def do_task(task):
                     sub_date = borrowed[i]['renew']
                 sub_date = datetime.strptime(sub_date, '%Y-%m-%d').date()
                 today = datetime.today().date()
-                if today>sub_date:
-                    data = BorrowRequests.query.filter_by(id=borrowed[i]['id']).first()
+                if today > sub_date:
+                    data = BorrowRequests.query.filter_by(
+                        id=borrowed[i]['id']).first()
                     data.status = f"LATE ({(today-sub_date).days})"
                     db.session.add(data)
                     db.session.commit()
@@ -528,10 +529,12 @@ def do_task(task):
             for x in deleted:
                 data = BorrowRequests.query.filter_by(id=int(x)).first()
                 db.session.delete(data)
+                db.session.commit()
             for x in approved:
                 data = BorrowRequests.query.filter_by(id=int(x)).first()
                 data.status = "approved"
                 db.session.add(data)
+                db.session.commit()
             for x in rejected:
                 data = BorrowRequests.query.filter_by(id=int(x)).first()
                 data.status = "rejected"
@@ -546,11 +549,22 @@ def do_task(task):
                 the_id, the_date = x.split(":")
                 data = BorrowRequests.query.filter_by(id=int(the_id)).first()
                 data.renew_date = the_date
+                data.days = (datetime.strptime(the_date, '%Y-%m-%d').date() -
+                             datetime.strptime(data.from_date, '%Y-%m-%d').date()).days + 1
                 db.session.add(data)
                 db.session.commit()
-            
+
             return redirect("/dashboard/borrowed-data")
 
+    elif task == "borrow-history":
+        if request.method == "POST":
+            deleted = request.form['deleted'].split(';')[:-1]
+            for x in deleted:
+                data = BorrowRequests.query.filter_by(id=int(x)).first()
+                db.session.delete(data)
+                db.session.commit()
+                
+            return redirect("/dashboard/borrow-history")
 
     return render_template(task+'.html', user=user, library=library, library_offline=library_offline, resources=resources, members=members, borrowed=borrowed, option_countries=aids.countries)
 

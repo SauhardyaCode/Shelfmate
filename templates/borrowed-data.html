@@ -27,7 +27,7 @@
 <div class="modal fade" id="date-extender" tabindex="-1" aria-labelledby="extenderLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-            <form method="POST" class="not-final" action="JavaScript:extend_request()" autocomplete="off">
+            <form method="POST" action="JavaScript:extend_request()" autocomplete="off">
                 <div class="modal-header">
                     <label for="date-input" id="modal-header" style="font-weight: 500; font-size: 1.2em;"></label>
                 </div>
@@ -217,6 +217,7 @@
         };
         toggle_delete(place);
     };
+
     function disable_approve() {
         for (let i = 0; i < all_from_dates.length; i++) {
             var from = new Date(all_from_dates[i].innerHTML);
@@ -248,11 +249,13 @@
     }
 
     function return_request(btn) {
-        btn.innerHTML = "Returned";
-        btn.classList.add("disabled");
-        document.getElementById(`stat2-${btn.id.slice(0, -2)}`).innerHTML = "returned";
-        document.getElementById(`${btn.id.slice(0, -1)}e`).classList.add("disabled");
-        returned.value += `${btn.id.slice(0, -2)};`;
+        if (confirm("Are you sure this member returned the book?")) {
+            btn.innerHTML = "Returned";
+            btn.classList.add("disabled");
+            document.getElementById(`stat2-${btn.id.slice(0, -2)}`).innerHTML = "returned";
+            document.getElementById(`${btn.id.slice(0, -1)}e`).classList.add("disabled");
+            returned.value += `${btn.id.slice(0, -2)};`;
+        }
     }
 
     function extend_request() {
