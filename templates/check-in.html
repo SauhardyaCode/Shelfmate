@@ -2,7 +2,7 @@
 {% block style %}
 <style>
     #main-block {
-        background-color: white;
+        background-color: whitesmoke;
         padding: 5%;
         width: 95%;
     }
@@ -23,8 +23,7 @@
     <div class="form-group row">
         <label class="col-sm-2 col-form-label form-head">Member<span style="color: red;">&nbsp;*</span></label>
         <div class="col-sm-10">
-            <input type="text" name="member" hidden>
-            <select name="member-show" class="form-add form-select-sm mb-3">
+            <select name="member" class="form-add form-select-sm mb-3">
                 <option value="" hidden>-select-</option>
                 {% for x in members %}
                 <option value="{{x['id']}}">{{x['id']}} - {{x['name']}}</option>
@@ -47,11 +46,26 @@
             <select name="resource" class="form-select-sm mb-3 form-add" onchange="JavaScript:add_choice()">
                 <option value="" hidden>-select-</option>
                 {% for x in resources %}
+                {% if x["quantity"]-x["borrowed"]-x["reading"] %}
                 <option value="{{x['isbn']}};{{x['title']}}">{{x['title']}}&nbsp;&nbsp;&nbsp;(#{{x['isbn']}})</option>
+                {% endif %}
                 {% endfor %}
             </select>
         </div>
     </div><br>
+    <div class="form-group row">
+        <label class="col-sm-2 col-form-label form-head">Purpose<span style="color: red;">&nbsp;*</span></label>
+        <div class="col-sm-10">
+            <textarea type="text" placeholder="Purpose" class="form-add" name="purpose" rows="2"
+                oninput="if(this.value.length>100){this.value = this.value.slice(0, 100)}else{document.getElementById('counter').innerHTML=this.value.length;}"
+                required></textarea>&nbsp;&nbsp;<span style="font-size: 0.7em;"><span id="counter">0</span>/100</span>
+        </div>
+    </div><br>
+    <div class="form-group row" style="text-align: center;">
+        <div class="col-sm-10">
+            <input type="submit" class="btn btn-primary">
+        </div>
+    </div>
 </form>
 {% endblock %}
 
@@ -100,7 +114,20 @@
 
     setTimeout(() => {
         var now = new Date();
-        document.getElementsByName("in-time")[0].value = `${now.getDate()} ${months[now.getMonth()]}, ${now.getFullYear()}   ${now.getHours()}:${now.getMinutes()}`;
+        var date = now.getDate();
+        var hour = now.getHours();
+        var minute = now.getMinutes();
+        var padder = [date, hour, minute];
+        if (date < 10) {
+            date = `0${date}`
+        }
+        if (hour < 10) {
+            hour = `0${hour}`
+        }
+        if (minute < 10) {
+            minute = `0${minute}`
+        }
+        document.getElementsByName("in-time")[0].value = `${date} ${months[now.getMonth()]}, ${now.getFullYear()}   ${hour}:${minute}`;
     }, 1)
 </script>
 {% endblock %}
