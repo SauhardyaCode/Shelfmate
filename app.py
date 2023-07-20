@@ -18,23 +18,23 @@ db = SQLAlchemy(app)
 
 class LoggedUsers(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(50), nullable=False)
-    email = db.Column(db.String(50), nullable=False)
-    pswd_hash = db.Column(db.String(100), nullable=False)
+    name = db.Column(db.String(50))
+    email = db.Column(db.String(50))
+    pswd_hash = db.Column(db.String(100))
     date_created = db.Column(db.DateTime, default=datetime.now())
-    user_hash = db.Column(db.String(100), nullable=False)
-    username = db.Column(db.String(50), nullable=False)
-    avatar = db.Column(db.Integer)
-    phone = db.Column(db.String(20))
-    author = db.Column(db.String(5000))
-    category = db.Column(db.String(5000))
-    language = db.Column(db.String(1000))
-    publisher = db.Column(db.String(5000))
-    library_name = db.Column(db.String(50))
-    library_email = db.Column(db.String(50))
-    library_phone = db.Column(db.String(20))
-    library_address = db.Column(db.String(150))
-    library_url = db.Column(db.String(300))
+    user_hash = db.Column(db.String(100))
+    username = db.Column(db.String(50))
+    avatar = db.Column(db.Integer, default=0)
+    phone = db.Column(db.String(20), default="")
+    author = db.Column(db.String(5000), default="")
+    category = db.Column(db.String(5000), default="")
+    language = db.Column(db.String(1000), default="")
+    publisher = db.Column(db.String(5000), default="")
+    library_name = db.Column(db.String(50), default="")
+    library_email = db.Column(db.String(50), default="")
+    library_phone = db.Column(db.String(20), default="")
+    library_address = db.Column(db.String(150), default="")
+    library_url = db.Column(db.String(300), default="")
 
 
 class ResourcesLibrary(db.Model):
@@ -49,6 +49,8 @@ class ResourcesLibrary(db.Model):
     quantity = db.Column(db.Integer)
     user_id = db.Column(db.Integer)
     book_cover = db.Column(db.String(300))
+    borrowed = db.Column(db.Integer, default=0)
+    reading = db.Column(db.Integer, default=0)
 
 
 class MembersLibrary(db.Model):
@@ -74,7 +76,7 @@ class BorrowRequests(db.Model):
     member_name = db.Column(db.String(100))
     item = db.Column(db.String(100))
     days = db.Column(db.Integer)
-    renew_date = db.Column(db.String(10))
+    renew_date = db.Column(db.String(10), default="")
 
 
 class AidedFuncs():
@@ -106,8 +108,8 @@ class AidedFuncs():
         data = []
         for i in range(len(list(main_data))):
             resource = main_data[i]
-            data.append({'isbn': resource.isbn, 'title': resource.title, 'edition': resource.edition, 'author': resource.author, 'category': resource.category,
-                        'publisher': resource.publisher, 'language': resource.language, 'quantity': resource.quantity, 'book_cover': resource.book_cover, 'id': resource.id})
+            data.append({'isbn': resource.isbn, 'title': resource.title, 'edition': resource.edition, 'author': resource.author, 'category': resource.category, 'publisher': resource.publisher,
+                        'language': resource.language, 'quantity': resource.quantity, 'book_cover': resource.book_cover, 'id': resource.id, 'borrowed': resource.borrowed, 'reading': resource.reading})
 
         return data
 
@@ -185,8 +187,8 @@ def home():
                             "Username should contain letters, digits and underscores only")
                         break
                     elif i+1 == len(username_sign):
-                        data = LoggedUsers(username=username_sign, email=email_sign, pswd_hash=hasher.get_hash(password_sign), user_hash=hasher.get_hash(
-                            username_sign), name=name_sign, avatar=0, phone="", author="", category="", language="", publisher="", library_name="", library_email="", library_phone="", library_address="", library_url="")
+                        data = LoggedUsers(username=username_sign, email=email_sign, pswd_hash=hasher.get_hash(
+                            password_sign), user_hash=hasher.get_hash(username_sign), name=name_sign)
                         db.session.add(data)
                         db.session.commit()
                         return render_template('success_signup.html')
@@ -360,6 +362,9 @@ def do_task(task):
             for i in range(len(resources)):
                 data = ResourcesLibrary.query.filter_by(
                     user_id=user['id'], isbn=request.form[f'{i}-isbn']).first()
+                quant = int(request.form[f'{i}-quantity'])
+                if quant < 0:
+                    quant = 0
                 if i in deleted:
                     db.session.delete(data)
                 else:
@@ -372,7 +377,7 @@ def do_task(task):
                     data.language = request.form[f'{i}-language'].replace(
                         ', ', ';')+';'
                     data.edition = request.form[f'{i}-edition']
-                    data.quantity = request.form[f'{i}-quantity']
+                    data.quantity = quant + data.borrowed + data.reading
                     db.session.add(data)
 
             db.session.commit()
@@ -477,7 +482,8 @@ def do_task(task):
             member_name = MembersLibrary.query.filter_by(
                 username=member).first().name
             isbn = request.form['real-isbn']
-            item = ResourcesLibrary.query.filter_by(isbn=isbn).first().title
+            thebook = ResourcesLibrary.query.filter_by(isbn=isbn).first()
+            item = thebook.title
             from_date = request.form['from-borrow']
             to_date = request.form['to-borrow']
             quantity = 1
@@ -491,13 +497,16 @@ def do_task(task):
                         data.quantity += 1
                         data.from_date = from_date
                         data.to_date = to_date
+                        if data.status == "approved":
+                            thebook.borrowed += 1
+                            db.session.add(thebook)
                         break
                     elif i == len(borrowed)-1:
                         data = BorrowRequests(
-                            user_id=user['id'], isbn=isbn, from_date=from_date, to_date=to_date, member=member, quantity=quantity, status="pending", member_name=member_name, item=item, days=days, renew_date="")
+                            user_id=user['id'], isbn=isbn, from_date=from_date, to_date=to_date, member=member, quantity=quantity, status="pending", member_name=member_name, item=item, days=days)
             else:
                 data = BorrowRequests(
-                    user_id=user['id'], isbn=isbn, from_date=from_date, to_date=to_date, member=member, quantity=quantity, status="pending", member_name=member_name, item=item, days=days, renew_date="")
+                    user_id=user['id'], isbn=isbn, from_date=from_date, to_date=to_date, member=member, quantity=quantity, status="pending", member_name=member_name, item=item, days=days)
 
             db.session.add(data)
             db.session.commit()
@@ -528,11 +537,20 @@ def do_task(task):
 
             for x in deleted:
                 data = BorrowRequests.query.filter_by(id=int(x)).first()
+                thebook = ResourcesLibrary.query.filter_by(
+                    isbn=data.isbn).first()
+                if data.status == "approved":
+                    thebook.borrowed -= data.quantity
+                    db.session.add(thebook)
                 db.session.delete(data)
                 db.session.commit()
             for x in approved:
                 data = BorrowRequests.query.filter_by(id=int(x)).first()
                 data.status = "approved"
+                thebook = ResourcesLibrary.query.filter_by(
+                    isbn=data.isbn).first()
+                thebook.borrowed += data.quantity
+                db.session.add(thebook)
                 db.session.add(data)
                 db.session.commit()
             for x in rejected:
@@ -543,6 +561,10 @@ def do_task(task):
             for x in returned:
                 data = BorrowRequests.query.filter_by(id=int(x)).first()
                 data.status = "returned"
+                thebook = ResourcesLibrary.query.filter_by(
+                    isbn=data.isbn).first()
+                thebook.borrowed -= data.quantity
+                db.session.add(thebook)
                 db.session.add(data)
                 db.session.commit()
             for x in extended:
@@ -561,9 +583,14 @@ def do_task(task):
             deleted = request.form['deleted'].split(';')[:-1]
             for x in deleted:
                 data = BorrowRequests.query.filter_by(id=int(x)).first()
+                thebook = ResourcesLibrary.query.filter_by(
+                    isbn=data.isbn).first()
+                if data.status == "approved":
+                    thebook.borrowed -= data.quantity
+                    db.session.add(thebook)
                 db.session.delete(data)
                 db.session.commit()
-                
+
             return redirect("/dashboard/borrow-history")
 
     return render_template(task+'.html', user=user, library=library, library_offline=library_offline, resources=resources, members=members, borrowed=borrowed, option_countries=aids.countries)

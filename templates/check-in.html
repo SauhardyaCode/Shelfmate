@@ -1,5 +1,106 @@
 {% extends 'base_account.html' %}
+{% block style %}
+<style>
+    #main-block {
+        background-color: white;
+        padding: 5%;
+        width: 95%;
+    }
+
+    .card {
+        width: fit-content;
+        font-size: 0.7em;
+        font-weight: 500;
+        cursor: pointer;
+    }
+</style>
+{% endblock %}
 
 {% block main_block %}
-hello
+<p class="h4">Check-In Member</p>
+<hr>
+<form class="container" method="post" autocomplete="off">
+    <div class="form-group row">
+        <label class="col-sm-2 col-form-label form-head">Member<span style="color: red;">&nbsp;*</span></label>
+        <div class="col-sm-10">
+            <input type="text" name="member" hidden>
+            <select name="member-show" class="form-add form-select-sm mb-3">
+                <option value="" hidden>-select-</option>
+                {% for x in members %}
+                <option value="{{x['id']}}">{{x['id']}} - {{x['name']}}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div><br>
+    <div class="form-group row">
+        <label class="col-sm-2 col-form-label form-head">In Time<span style="color: red;">&nbsp;*</span></label>
+        <div class="col-sm-10">
+            <input type="text" placeholder="Check In Time" class="form-add" name="in-time"
+                onfocus="JavaScript:undecorate_time(this)" onblur="JavaScript:decorate_time(this)">
+        </div>
+    </div><br>
+    <div class="form-group row">
+        <label class="col-sm-2 col-form-label form-head">Resources<span style="color: red;">&nbsp;*</span></label>
+        <div class="col-sm-10">
+            <input name="hidden-resource-tag" required hidden>
+            <div class="col-sm-10 tags" id="resource-tag"></div>
+            <select name="resource" class="form-select-sm mb-3 form-add" onchange="JavaScript:add_choice()">
+                <option value="" hidden>-select-</option>
+                {% for x in resources %}
+                <option value="{{x['isbn']}};{{x['title']}}">{{x['title']}}&nbsp;&nbsp;&nbsp;(#{{x['isbn']}})</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div><br>
+</form>
+{% endblock %}
+
+{% block code %}
+<script>
+    function decorate_time(self) {
+        self.type = "text";
+        if (self.value) {
+            let date_raw = self.value.split('T')[0];
+            let time_raw = self.value.split('T')[1];
+            self.value = date_raw;
+            var date = decorate_date(self, 0);
+            self.value = `${date}   ${time_raw}`;
+        }
+    }
+
+    function undecorate_time(self) {
+        if (self.value) {
+            let date_dec = self.value.split('   ')[0];
+            let time_dec = self.value.split('   ')[1];
+            self.value = date_dec;
+            var date = undecorate_date(self, 0);
+            self.value = `${date}T${time_dec}`;
+        }
+        self.type = "datetime-local";
+    }
+
+    const selector = document.getElementsByName("resource")[0];
+    const hid_tagger = document.getElementsByName("hidden-resource-tag")[0];
+    const tagger = document.getElementById("resource-tag");
+
+    function add_choice() {
+        let isbn = selector.value.split(';')[0];
+        let title = selector.value.split(';')[1];
+        if (!hid_tagger.value.split(';').includes(isbn)) {
+            tagger.innerHTML += `<div onclick="JavaScript:delete_choice(${isbn}, this)" class="card bg-light mb-3"><div class="card-header"><span style="font-size: 1.4em; color: red;">&Cross;</span>&nbsp; ${title.replace(/ /g, "&nbsp;")}&nbsp;</div></div>`;
+            hid_tagger.value += isbn + ';';
+        }
+        selector.selectedIndex = 0;
+    }
+
+    function delete_choice(choice, card) {
+        card.remove();
+        hid_tagger.value = hid_tagger.value.replace(choice + ';', "");
+    }
+
+    setTimeout(() => {
+        var now = new Date();
+        document.getElementsByName("in-time")[0].value = `${now.getDate()} ${months[now.getMonth()]}, ${now.getFullYear()}   ${now.getHours()}:${now.getMinutes()}`;
+    }, 1)
+</script>
 {% endblock %}

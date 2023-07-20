@@ -57,7 +57,7 @@
         <table style="text-align: left;">
             <tbody>
                 {% for i in range(resources|length) %}
-                <tr>
+                <tr class="each-card">
                     <td id="{{i}}-card">
                         <div class="card card-personal">
                             <div class="card-body">
@@ -70,26 +70,22 @@
                                             <li class="list-group-item"><span class="list-tag">ISBN</span> -
                                                 {{resources[i]['isbn']}}</li>
                                             <li class="list-group-item"><span class="list-tag">Authors</span> -
-                                                <span class="{{i}}-data">{{resources[i]['author'].replace(';',',
-                                                    ')[:-2]}}</span>
+                                                <span class="{{i}}-data">{{resources[i]['author'].replace(';',', ')[:-2]}}</span>
                                                 <input class="form-add" type="text" name="{{i}}-author"
                                                     value="{{resources[i]['author'].replace(';',', ')[:-2]}}" hidden>
                                             </li>
                                             <li class="list-group-item"><span class="list-tag">Publisher</span> -
-                                                <span class="{{i}}-data">{{resources[i]['publisher'].replace(';',',
-                                                    ')[:-2]}}</span>
+                                                <span class="{{i}}-data">{{resources[i]['publisher'].replace(';',', ')[:-2]}}</span>
                                                 <input class="form-add" type="text" name="{{i}}-publisher"
                                                     value="{{resources[i]['publisher'].replace(';',', ')[:-2]}}" hidden>
                                             </li>
                                             <li class="list-group-item"><span class="list-tag">Category</span> -
-                                                <span class="{{i}}-data">{{resources[i]['category'].replace(';',',
-                                                    ')[:-2]}}</span>
+                                                <span class="{{i}}-data">{{resources[i]['category'].replace(';',', ')[:-2]}}</span>
                                                 <input class="form-add" type="text" name="{{i}}-category"
                                                     value="{{resources[i]['category'].replace(';',', ')[:-2]}}" hidden>
                                             </li>
                                             <li class="list-group-item"><span class="list-tag">Language</span> -
-                                                <span class="{{i}}-data">{{resources[i]['language'].replace(';',',
-                                                    ')[:-2]}}</span>
+                                                <span class="{{i}}-data">{{resources[i]['language'].replace(';',', ')[:-2]}}</span>
                                                 <input class="form-add" type="text" name="{{i}}-language"
                                                     value="{{resources[i]['language'].replace(';',', ')[:-2]}}" hidden>
                                             </li>
@@ -98,11 +94,15 @@
                                                 <input class="form-add" type="text" name="{{i}}-edition"
                                                     value="{{resources[i]['edition']}}" hidden>
                                             </li>
-                                            <li class="list-group-item"><span class="list-tag">Quantity</span> -
-                                                <span class="{{i}}-data">{{resources[i]['quantity']}}</span>
-                                                <input class="form-add" type="text" name="{{i}}-quantity"
+                                            <li class="list-group-item"><span class="list-tag">Available</span> -
+                                                <span class="{{i}}-data">{{resources[i]['quantity']-resources[i]['borrowed']-resources[i]['reading']}}</span>
+                                                <input class="form-add" type="number" name="{{i}}-quantity"
                                                     value="{{resources[i]['quantity']}}" hidden>
                                             </li>
+                                            <li class="list-group-item"><span class="list-tag">Borrowed</span> -
+                                                {{resources[i]['borrowed']}}</li>
+                                            <li class="list-group-item"><span class="list-tag">Reading</span> -
+                                                {{resources[i]['reading']}}</li>
                                         </ul>
                                     </td>
                                     <td>

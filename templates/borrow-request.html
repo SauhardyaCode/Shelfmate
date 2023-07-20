@@ -32,9 +32,11 @@
             <select name="isbn-borrow" class="form-add" onchange="Javascript:get_book(this.value)">
                 <option value="" hidden>-Select-</option>
                 {% for i in range(resources|length) %}
+                {% if resources[i]["quantity"]-resources[i]["borrowed"]-resources[i]["reading"] %}
                 <option value="{{resources[i]['isbn']}};{{resources[i]['edition']}};{{resources[i]['language']}}">
                     {{resources[i]["isbn"]}}
                 </option>
+                {% endif %}
                 {% endfor %}
             </select>
         </div>
@@ -45,9 +47,11 @@
             <select name="title-borrow" class="form-add" onchange="Javascript:get_book(this.value)">
                 <option value="" hidden>-Select-</option>
                 {% for i in range(resources|length) %}
+                {% if resources[i]["quantity"]-resources[i]["borrowed"]-resources[i]["reading"] %}
                 <option value="{{resources[i]['isbn']}};{{resources[i]['edition']}};{{resources[i]['language']}}">
                     {{resources[i]["title"]}}
                 </option>
+                {% endif %}
                 {% endfor %}
             </select>
         </div>
