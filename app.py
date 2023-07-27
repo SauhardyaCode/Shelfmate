@@ -62,6 +62,7 @@ class MembersLibrary(db.Model):
     username = db.Column(db.String(50))
     avatar = db.Column(db.Integer)
     user_id = db.Column(db.Integer)
+    visits = db.Column(db.Integer, default=0)
 
 
 class BorrowRequests(db.Model):
@@ -87,6 +88,7 @@ class CheckedMembers(db.Model):
     out_time = db.Column(db.String(30), default="")
     books = db.Column(db.String(200))
     purpose = db.Column(db.String(100))
+    name = db.Column(db.String(100))
 
 
 class AidedFuncs():
@@ -130,8 +132,8 @@ class AidedFuncs():
         data = []
         for i in range(len(list(main_data))):
             member = main_data[i]
-            data.append({'name': member.name, 'phone': member.phone, 'email': member.email,
-                        'address': member.address, 'username': member.username, 'avatar': member.avatar, 'id': member.id})
+            data.append({'name': member.name, 'phone': member.phone, 'email': member.email, 'address': member.address,
+                        'username': member.username, 'avatar': member.avatar, 'id': member.id, 'visits': member.visits})
 
         return data
 
@@ -155,7 +157,18 @@ class AidedFuncs():
         for i in range(len(list(main_data))):
             check = main_data[i]
             data.append({'id': check.id, 'user_id': check.user_id, 'member_id': check.member_id, 'in_time': check.in_time,
-                        'out_time': check.out_time, 'books': check.books.split(';')[:-1], 'purpose': check.purpose})
+                        'out_time': check.out_time, 'books': check.books.split(';')[:-1], 'purpose': check.purpose, 'name': check.name})
+
+        return data
+
+    def get_books(self):
+        db.session.commit()
+        my_id = self.get_user()[0]['id']
+        main_data = ResourcesLibrary.query.filter_by(user_id=my_id)
+        data = {}
+        for i in range(len(list(main_data))):
+            book = main_data[i]
+            data[book.isbn] = book.title
 
         return data
 
@@ -343,6 +356,7 @@ def do_task(task):
         members = aids.get_members()
         borrowed = aids.get_borrows()
         checks = aids.get_checks()
+        books = aids.get_books()
         if user == None:
             return render_template('cookie_mismatch.html')
 
@@ -623,10 +637,14 @@ def do_task(task):
             books = request.form['hidden-resource-tag']
             isbns = books.split(';')[:-1]
             purpose = request.form['purpose']
+            themember = MembersLibrary.query.filter_by(id=mem).first()
+            name = themember.name
 
             data = CheckedMembers(
-                user_id=user['id'], member_id=mem, in_time=in_time, books=books, purpose=purpose)
+                user_id=user['id'], member_id=mem, in_time=in_time, books=books, purpose=purpose, name=name)
+            themember.visits += 1
             db.session.add(data)
+            db.session.add(themember)
             db.session.commit()
             for isbn in isbns:
                 book = ResourcesLibrary.query.filter_by(
@@ -637,7 +655,30 @@ def do_task(task):
 
             return redirect("/dashboard/check-in")
 
-    return render_template(task+'.html', user=user, library=library, library_offline=library_offline, resources=resources, members=members, borrowed=borrowed, checks=checks, option_countries=aids.countries)
+    elif task == "checked-user":
+        if request.method == "POST":
+            deleted = request.form['deleted'].split(';')[:-1]
+            out_set = request.form['out'].split(';')[:-1]
+            out_id = []
+            out_time = []
+            for x in out_set:
+                out = x.split('&')
+                if out[0] not in deleted:
+                    out_id.append(out[0])
+                    out_time.append(out[1])
+            for id in deleted:
+                data = CheckedMembers.query.filter_by(id=id).first()
+                db.session.delete(data)
+                db.session.commit()
+            for i in range(len(out_id)):
+                data = CheckedMembers.query.filter_by(id=out_id[i]).first()
+                data.out_time = out_time[i]
+                db.session.add(data)
+                db.session.commit()
+
+            return redirect('/dashboard/checked-user')
+
+    return render_template(task+'.html', user=user, library=library, library_offline=library_offline, resources=resources, members=members, borrowed=borrowed, checks=checks, books=books, option_countries=aids.countries)
 
 
 def isbn_decoder():

@@ -1,5 +1,273 @@
 {% extends 'base_account.html' %}
+{% block style %}
+<style>
+    .list-tag {
+        font-size: 0.8em;
+        font-weight: 500;
+    }
+
+    .card-personal {
+        background-color: rgb(234, 234, 234);
+    }
+
+    .details-member {
+        font-size: 0.8em;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+
+    .editor-members {
+        border: none;
+        border-radius: 0;
+        background-color: rgb(40, 40, 40);
+        color: white;
+    }
+
+    .username-floater {
+        text-align: left;
+        padding-left: 2%;
+        margin-top: -5%;
+        font-size: 0.8em;
+        color: rgb(163, 163, 163);
+    }
+
+    .space {
+        width: 10em;
+    }
+
+    @media (min-width: 991.98px) {
+        .card-personal {
+            width: 20em;
+        }
+
+        .member-image {
+            width: 100px;
+        }
+
+        input {
+            margin-left: 10%;
+        }
+
+        select {
+            margin-left: 10%;
+        }
+
+        .tags {
+            margin-left: 10%;
+        }
+    }
+
+    @media (max-width: 991.98px) {
+        .card-personal {
+            width: 15em;
+        }
+
+        .main-grouper {
+            width: 18em;
+            text-align: left;
+        }
+
+        .member-image {
+            width: 50px;
+        }
+
+        .space {
+            width: 5em;
+        }
+    }
+
+    @media (max-width: 769.91px) {
+        .card-title {
+            font-size: 0.9em;
+        }
+    }
+
+    @media (min-width: 769.91px) and (max-width: 991.98px) {
+        .username-floater {
+            display: none;
+        }
+    }
+
+    .popover {
+        display: inline-block;
+        cursor: pointer;
+        border: none;
+    }
+
+    .popover-content {
+        display: none;
+        position: absolute;
+        background-color: #f9f9f9;
+    }
+
+    .popover-content .btn {
+        width: 8em;
+    }
+
+    .popover.active .popover-content {
+        display: block;
+    }
+
+    .main-block-inside {
+        background-color: rgb(236, 236, 236);
+        width: 95%;
+        padding: 5%;
+    }
+
+    #show-2 {
+        background-color: whitesmoke;
+    }
+</style>
+{% endblock %}
 
 {% block main_block %}
-hello
+{% if checks|length==0 %}
+<p class="h1" style="color: rgb(31, 1, 61);">No Checked Users !</p><br><br>
+<a href="/dashboard/check-in" onclick="JavaScript:show_loader()" class="btn btn-success"
+    style="width: 100%; font-size: 1.3em;">+ Add Record</a>
+{% else %}
+<div class="container pt-4 main-block-inside" id="show-1" style="text-align: right;">
+    <p class="h4" style="text-align: left;">Members</p>
+    <form method="post" autocomplete="off">
+        <button class="btn btn-secondary" type="submit">Save Changes</button>
+        <hr>
+        <div id="note">(Note: If you don't click on Save Changes, all the edits will be gone)</div>
+        <div class="table-responsive">
+            <table id="all-members-show" style="text-align: left;">
+                {% set ns = namespace() %}
+                {% set ns.index = 0 %}
+                {% for i in range(checks|length-1, -1, -1) %}
+                {% if checks[i]['out_time']=="" %}
+                {% if ns.index==0 %}
+                <tr>
+                    <td id="{{checks[i]['id']}}-card">
+                        {% else %}
+                    <td id="{{checks[i]['id']}}-card">
+                        {% endif %}
+                        <div class="card card-personal" style="background-color: white;">
+                            <div class="card-body">
+                                <span class="popover" style="float: right;"><img
+                                        src="../static/Personal/Images/display/edit.png" width="15px"
+                                        style="margin-top: -1%; cursor: pointer;">
+                                    <div class="popover-content">
+                                        <span type="button" id="{{checks[i]['id']}}-out"
+                                            class="btn btn-success container-fluid editor-members"
+                                            onclick="Javascript:check_out(this.id.slice(0,-4))">Check Out</span>
+                                        <span type="button" id="{{checks[i]['id']}}-delete"
+                                            class="btn btn-danger container-fluid editor-members"
+                                            onclick="Javascript:delete_reader(this.id.slice(0,-7))">Delete</span>
+                                    </div>
+                                </span>
+                                <div id="{{checks[i]['id']}}-delete-reminder" style="color: red; font-size: 1.5em;"
+                                    hidden>(Deleted)</div>
+                                <table class="table table-striped" id="{{checks[i]['id']}}-table">
+                                    <tr>
+                                        <th><span class="card-title" style="font-size: 0.9em;">Member:</span></th>
+                                        <td class="container">{{checks[i]['name']}}</td>
+                                    </tr>
+                                    <tr>
+                                        <th><span class="card-title" style="font-size: 0.9em;">In Time:</span></th>
+                                        <td class="container">{{checks[i]['in_time']}}</td>
+                                    </tr>
+                                    <tr id="out-time-{{checks[i]['id']}}">
+                                        <th><span class="card-title" style="font-size: 0.9em;">Out Time:</span></th>
+                                        <td class="container">Pending...</td>
+                                    </tr>
+                                    <tr>
+                                        <th><span class="card-title" style="font-size: 0.9em;">Purpose:</span></th>
+                                        <td class="container">{% if checks[i]['purpose'].strip()
+                                            %}{{checks[i]['purpose']}}{% else %}(None){% endif %}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th><span class="card-title" style="font-size: 0.9em;">Resources:</span></th>
+                                        {% if checks[i]['books']|length %}
+                                        <td>
+                                            {% for x in checks[i]['books'] %}
+                                            <li>{{books[x]}}</li>
+                                            {% endfor %}
+                                        </td>
+                                        {% else %}
+                                        <td>(None)</td>
+                                        {% endif %}
+                                    </tr>
+                                </table>
+                            </div>
+                        </div><br><br>
+                    </td>
+                    {% if (ns.index==1 or (ns.index==0 and i==members|length-1)) %}
+                </tr>
+                {% else %}
+                <td>
+                    <div class="space"></div>
+                </td>
+                {% endif %}
+                {% set ns.index = 1 - ns.index %}
+                {% endif %}
+                {% endfor %}
+            </table>
+        </div>
+
+        <input type="text" id="deleted" name="deleted" hidden>
+        <input type="text" id="out" name="out" hidden>
+    </form>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block code %}
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var popover = document.getElementsByClassName("popover");
+
+        for (let i = 0; i < popover.length; i++) {
+            var popoverContent = popover[i].getElementsByClassName("popover-content");
+
+            popover[i].addEventListener("click", function () {
+                popover[i].classList.toggle("active");
+            });
+            document.addEventListener("click", function (event) {
+                if (!popover[i].contains(event.target)) {
+                    popover[i].classList.remove("active");
+                }
+            });
+        }
+    });
+
+    const out = document.getElementById('out');
+    const deleted = document.getElementById('deleted');
+
+    function check_out(id) {
+        if (confirm("Are you sure you want to check this user out?")) {
+            let show = document.getElementById(`out-time-${id}`);
+            let now = new Date();
+            var date = now.getDate();
+            var hour = now.getHours();
+            var minute = now.getMinutes();
+            if (date < 10) {
+                date = `0${date}`
+            }
+            if (hour < 10) {
+                hour = `0${hour}`
+            }
+            if (minute < 10) {
+                minute = `0${minute}`
+            }
+            let schedule = `${date} ${months[now.getMonth()]}, ${now.getFullYear()} ${hour}:${minute}`
+            show.getElementsByTagName('td')[0].innerHTML = schedule;
+            out.value += `${id}&${schedule};`;
+        }
+    }
+
+    function delete_reader(id) {
+        if (confirm("Are you sure you want to delete this record?")) {
+            deleted.value += id + ';';
+            document.getElementById(`${id}-delete-reminder`).hidden = false;
+            document.getElementById(`${id}-table`).hidden = true;
+            document.getElementById(`${id}-out`).onclick = "";
+            document.getElementById(`${id}-delete`).onclick = "";
+        }
+    }
+</script>
 {% endblock %}
