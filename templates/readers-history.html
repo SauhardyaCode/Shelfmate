@@ -1,5 +1,105 @@
 {% extends 'base_account.html' %}
-
+{% block style %}
+<style>
+    td,
+    th {
+        border-right: 1px solid rgb(223, 223, 223);
+        white-space: nowrap;
+    }
+</style>
+{% endblock %}
 {% block main_block %}
-hello
+<div class="container pt-4" id="main-block-sub"
+    style="background-color:whitesmoke; padding: 5%; width: 95%; text-align: right;">
+    <p class="h4" style="text-align: left;">Readers History</p>
+    <form method="post" onsubmit="JavaScript:show_loader()">
+        <button class="btn btn-secondary" type="submit">Save Changes</button>
+        <input type="text" id="deleted" name="deleted" hidden>
+    </form>
+    <hr>
+    <div id="note">(Note: If you don't click on Save Changes, all the edits will be gone)</div>
+    <div id="yet-to-approve" class="sub-div container" style="text-align: left;">
+        <hr>
+        <div id="delete1" hidden><button type="button" class="btn btn-secondary"
+                onclick="JavaScript:delete_data(1)">Delete</button>
+        </div>
+        <div class="table-responsive" id="table1">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col"><input type="checkbox" name="all" id="all"
+                                onclick="JavaScript:check_all(this.checked, 1)"></th>
+                        <th scope="col">Member</th>
+                        <th scope="col">Resources</th>
+                        <th scope="col">In Time</th>
+                        <th scope="col">Out Time</th>
+                        <th scope="col">Purpose</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for x in checks %}
+                    {% if x['out_time'] %}
+                    <tr class="data-column-1" id="{{x['id']}}" style="background-color: rgb(196, 212, 171);">
+                        {% else %}
+                    <tr class="data-column-1" id="{{x['id']}}" style="background-color: rgb(133, 161, 191);">
+                        {% endif %}
+                        <td><input type="checkbox" name="{{x['id']}}" class="checks1"
+                                onclick="JavaScript:toggle_delete(1)"></td>
+                        <td>{{x['name']}}</td>
+                        <td>
+                            {% for y in x['books'] %}
+                            <li>{{books[y]}}</li>
+                            {% endfor %}
+                        </td>
+                        <td>{{x['in_time']}}</td>
+                        <td>{{x['out_time']}}</td>
+                        <td>{{x['purpose']}}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block code %}
+<script>
+    function check_all(check, place) {
+        const all_checks = document.getElementsByClassName(`checks${place}`);
+        for (let i = 0; i < all_checks.length; i++) {
+            all_checks[i].checked = check;
+        };
+        toggle_delete(place);
+    };
+
+    function toggle_delete(place) {
+        const all_checks = document.getElementsByClassName(`checks${place}`);
+        document.getElementById(`delete${place}`).hidden = true;
+        for (let i = 0; i < all_checks.length; i++) {
+            if (all_checks[i].checked) {
+                document.getElementById(`delete${place}`).hidden = false;
+                break;
+            };
+        };
+    };
+
+    function delete_data(place) {
+        const all_data = document.getElementsByClassName(`data-column-${place}`);
+        const all_checks = document.getElementsByClassName(`checks${place}`);
+        if (confirm("Do you want to delete the selected data?")) {
+            let i = 0;
+            while (i < all_checks.length) {
+                if (all_checks[i].checked) {
+                    let id = all_data[i].id;
+                    deleted.value += `${id};`;
+                    all_data[i].remove();
+                    i--;
+                };
+                i++;
+            };
+        };
+        toggle_delete(place);
+    };
+</script>
 {% endblock %}

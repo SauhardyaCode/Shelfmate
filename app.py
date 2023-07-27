@@ -678,6 +678,16 @@ def do_task(task):
 
             return redirect('/dashboard/checked-user')
 
+    elif task == "readers-history":
+        if request.method == "POST":
+            deleted = request.form['deleted'].split(';')[:-1]
+            for id in deleted:
+                data = CheckedMembers.query.filter_by(id=id).first()
+                db.session.delete(data)
+                db.session.commit()
+
+            return redirect('/dashboard/readers-history')
+
     return render_template(task+'.html', user=user, library=library, library_offline=library_offline, resources=resources, members=members, borrowed=borrowed, checks=checks, books=books, option_countries=aids.countries)
 
 
