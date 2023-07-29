@@ -399,12 +399,12 @@ def do_task(task):
             for i in range(len(resources)):
                 data = ResourcesLibrary.query.filter_by(
                     user_id=user['id'], isbn=request.form[f'{i}-isbn']).first()
-                quant = int(request.form[f'{i}-quantity'])
-                if quant < 0:
-                    quant = 0
                 if i in deleted:
                     db.session.delete(data)
                 else:
+                    quant = int(request.form[f'{i}-quantity'])
+                    if quant < 0:
+                        quant = 0
                     data.author = request.form[f'{i}-author'].replace(
                         ', ', ';')+';'
                     data.publisher = request.form[f'{i}-publisher'].replace(
@@ -672,9 +672,15 @@ def do_task(task):
                 db.session.commit()
             for i in range(len(out_id)):
                 data = CheckedMembers.query.filter_by(id=out_id[i]).first()
+                isbns = data.books.split(';')[0]
                 data.out_time = out_time[i]
                 db.session.add(data)
                 db.session.commit()
+                for j in isbns:
+                    book = ResourcesLibrary.query.filter_by(user_id=user['id'], isbn=j).first()
+                    book.reading -= 1
+                    db.session.add(book)
+                    db.session.commit()
 
             return redirect('/dashboard/checked-user')
 
