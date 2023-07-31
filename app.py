@@ -693,6 +693,9 @@ def do_task(task):
                 db.session.commit()
 
             return redirect('/dashboard/readers-history')
+    
+    elif task == "account":
+        pass
 
     return render_template(task+'.html', user=user, library=library, library_offline=library_offline, resources=resources, members=members, borrowed=borrowed, checks=checks, books=books, option_countries=aids.countries)
 
