@@ -472,12 +472,7 @@ def do_task(task):
             username = request.form['username-member']
             email = request.form['email-member']
             phone = request.form['phone-member']
-            address = ""
-            for i in range(1, 7):
-                x = request.form[f'address-{i}']
-                if x.strip() != "":
-                    address += x+', '
-            address = address[:-2]
+            address = ';'.join([request.form[f'address-{i}'] for i in range(1, 7)])
             avatar = request.form['avatar']
 
             data = MembersLibrary(name=name, phone=phone, email=email, address=address,

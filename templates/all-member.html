@@ -359,14 +359,11 @@
         document.getElementById(`${member_data[5]}-name-x`).innerHTML = name;
         document.getElementById(`${member_data[5]}-email-x`).innerHTML = email;
         document.getElementById(`${member_data[5]}-phone-x`).innerHTML = phone;
-        let addr = "";
+        let arr = [];
         for (let i = 1; i <= 6; i++) {
-            let ad = document.getElementsByName(`address-${i}`)[0].value.replace(/;/g, "");
-            if (ad.replace(/ /g, "") != "") {
-                addr += ad + ', ';
-            }
+            arr.push(document.getElementsByName(`address-${i}`)[0].value.replace(/;/g, ""));
         }
-        addr = addr.slice(0, -2);
+        addr = arr.join(";")
         document.getElementById(`${member_data[5]}-address-x`).innerHTML = addr;
         var edit_value_so_far = document.getElementById("edited");
         if (edit_value_so_far.value == "") {
