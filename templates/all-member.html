@@ -178,9 +178,9 @@
                                         style="margin-top: -1%; cursor: pointer;">
                                     <div class="popover-content">
                                         <span type="button"
-                                            id="{{members[i]['name']}};{{members[i]['username']}};{{members[i]['email']}};{{members[i]['phone']}};{{members[i]['avatar']}};{{i}};{{members[i]['address']}}"
+                                            id="{{members[i]['name']}}||{{members[i]['username']}}||{{members[i]['email']}}||{{members[i]['phone']}}||{{members[i]['avatar']}}||{{i}}||{{members[i]['address']}}"
                                             class="btn btn-primary container-fluid editor-members"
-                                            onclick="Javascript:edit_member(this.id.split(';'))">Edit</span><br>
+                                            onclick="Javascript:edit_member(this.id.split('||'))">Edit</span><br>
                                         <span type="button" id="{{members[i]['username']}}-delete"
                                             class="btn btn-danger container-fluid editor-members"
                                             onclick="Javascript:delete_member(this.id.slice(0,-7))">Delete</span>
@@ -196,7 +196,17 @@
                                     {{members[i]['name']}}</div>
                                 <div class="details-member {{members[i]['username']}}-data-member" id="{{i}}-address-x"
                                     style="color: rgb(168, 168, 168);">
-                                    {{members[i]['address']}}</div>
+                                    {% for j in range(members[i]['address'].split(';')|length) %}
+                                    {% set x = members[i]['address'].split(';')[j] %}
+                                    {% if x %}
+                                    {% if j == members[i]['address'].split(';')|length-1 %}
+                                    {{x}}
+                                    {% else %}
+                                    {{x}},&nbsp;
+                                    {% endif %}
+                                    {% endif %}
+                                    {% endfor %}
+                                </div>
                                 <div class="details-member {{members[i]['username']}}-data-member" id="{{i}}-phone-x">
                                     {{members[i]['phone']}}</div>
                                 <a class="details-member {{members[i]['username']}}-data-member" id="{{i}}-email-x"
@@ -334,8 +344,10 @@
         document.getElementsByName("username-member")[0].value = data[1];
         document.getElementsByName("email-member")[0].value = data[2];
         document.getElementsByName("phone-member")[0].value = data[3];
-        document.getElementsByName("address-1")[0].value = data[6];
         document.getElementsByName("avatar")[0].value = pic = data[4];
+        for (let i = 0; i < 6; i++) {
+            document.getElementsByName(`address-${i+1}`)[0].value = data[6].split(';')[i];
+        }
         let avatar = Number(data[4])
         before.src = `../static/Personal/Images/members/member_${avatar - 1}.png`
         main.src = `../static/Personal/Images/members/member_${avatar}.png`
@@ -363,8 +375,14 @@
         for (let i = 1; i <= 6; i++) {
             arr.push(document.getElementsByName(`address-${i}`)[0].value.replace(/;/g, ""));
         }
-        addr = arr.join(";")
-        document.getElementById(`${member_data[5]}-address-x`).innerHTML = addr;
+        addr = arr.join(";");
+        pretty = [];
+        for (x in arr) {
+            if (arr[x] != "") {
+                pretty.push(arr[x])
+            }
+        }
+        document.getElementById(`${member_data[5]}-address-x`).innerHTML = pretty.join(", ");
         var edit_value_so_far = document.getElementById("edited");
         if (edit_value_so_far.value == "") {
             edit_value_so_far.value += "{";

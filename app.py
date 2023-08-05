@@ -490,7 +490,6 @@ def do_task(task):
                     username=members[i]["username"], user_id=user['id']).first()
                 if members[i]["username"] in deleted:
                     db.session.delete(data)
-
                 try:
                     edited = json.loads(request.form['edited'][:-2]+"}")
                 except:
@@ -506,7 +505,7 @@ def do_task(task):
                         db.session.add(data)
 
             db.session.commit()
-            return redirect("/dashboard/add-member")
+            return redirect("/dashboard/all-member")
 
     elif task == "borrow-request":
         if request.method == "POST":
